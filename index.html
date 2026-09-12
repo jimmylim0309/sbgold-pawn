@@ -390,18 +390,14 @@
       document.getElementById('th-interest').innerText = t.thInterest;
     }
 
-    // -------------------------------------------------------------
-    // 핵심 비즈니스 로직: 다음 이자 납부 예정일 계산 (대출 다음 달 기준)
-    // -------------------------------------------------------------
+    // 다음 이자 납부 예정일 계산
     function getNextDueDate(loanDateStr) {
       const loanDate = new Date(loanDateStr);
       const today = new Date();
       today.setHours(0, 0, 0, 0);
 
-      // 첫 번째 이자 납부일: 대출일로부터 무조건 '다음 달' 동일 날짜
       let nextDue = new Date(loanDate.getFullYear(), loanDate.getMonth() + 1, loanDate.getDate());
 
-      // 오늘 날짜가 첫 이자 납부일을 넘었거나 오늘인 경우, 다음 달 동일 날짜로 이월
       while (nextDue <= today) {
         nextDue.setMonth(nextDue.getMonth() + 1);
       }
@@ -474,12 +470,12 @@
       document.getElementById('section-customer-dashboard').classList.remove('hidden');
     }
 
-    // 관리자 로그인 처리
+    // 관리자 로그인 처리 (비밀번호: jimmylim0309!)
     function handleAdminLogin(e) {
       e.preventDefault();
       const pw = document.getElementById('admin-password').value.trim();
 
-      if (pw === "1234") { // 관리자 비밀번호
+      if (pw === "jimmylim0309!") { 
         renderAdminDashboard();
       } else {
         alert(currentLang === 'ko' ? "비밀번호가 올바르지 않습니다." : "รหัสผ่านไม่ถูกต้อง");
