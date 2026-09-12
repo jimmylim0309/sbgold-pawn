@@ -134,13 +134,57 @@
           </div>
         </div>
 
-        <div class="bg-slate-900/50 rounded-xl p-4 border border-slate-800/80 text-xs text-slate-400 space-y-1">
-          <div class="flex items-center space-x-2 text-amber-400 font-semibold mb-1">
-            <i class="fa-solid fa-circle-info"></i>
-            <span id="lbl-info-title">이자 계산 및 납부 방식 안내</span>
+        <!-- 신규 유의사항 섹션 -->
+        <div class="bg-slate-900/50 rounded-xl p-5 border border-slate-800/80 text-xs text-slate-300 space-y-4">
+          <!-- 1. 이자 납부 및 연체 규정 -->
+          <div>
+            <div class="flex items-center space-x-2 text-amber-400 font-bold text-sm mb-1">
+              <i class="fa-solid fa-circle-info"></i>
+              <span id="lbl-notice-1-title">[이자 납부 및 연체 규정]</span>
+            </div>
+            <ul class="list-disc list-inside space-y-1 text-slate-400 pl-1">
+              <li id="lbl-notice-1-item1">유예 기간: 만기일 기준 3일까지 허용</li>
+              <li id="lbl-notice-1-item2">연체료: 3일 초과 시 하루 8,000원</li>
+              <li id="lbl-notice-1-item3">금 몰수: 무연락 10일 이상 연체 시, 포기로 간주하여 사전 통보 없이 즉시 몰수</li>
+            </ul>
           </div>
-          <p id="lbl-info-desc">각 담보 항목별로 설정된 이자율에 맞춰 월 이자가 계산되어 합산 안내됩니다.</p>
+
+          <!-- 2. 원금 상환 안내 -->
+          <div>
+            <div class="flex items-center space-x-2 text-amber-400 font-bold text-sm mb-1">
+              <i class="fa-solid fa-circle-info"></i>
+              <span id="lbl-notice-2-title">[원금 상환 안내]</span>
+            </div>
+            <ul class="list-disc list-inside space-y-1 text-slate-400 pl-1">
+              <li id="lbl-notice-2-item1">현금 또는 계좌이체만 가능</li>
+              <li id="lbl-notice-2-item2">계좌이체 시 본인 명의 계좌만 가능 (타인 명의 송금 절대 불가)</li>
+            </ul>
+          </div>
+
+          <!-- 3. 원금 감액 및 이자 -->
+          <div>
+            <div class="flex items-center space-x-2 text-amber-400 font-bold text-sm mb-1">
+              <i class="fa-solid fa-circle-info"></i>
+              <span id="lbl-notice-3-title">[원금 감액 및 이자]</span>
+            </div>
+            <ul class="list-disc list-inside space-y-1 text-slate-400 pl-1">
+              <li id="lbl-notice-3-item1">원금 일부 상환 시 이자 감면 (단, 첫 달은 감면 없이 전액 부과)</li>
+              <li id="lbl-notice-3-item2">이자율은 기준에 따라 변동될 수 있음</li>
+            </ul>
+          </div>
+
+          <!-- 4. 택배 배송 -->
+          <div>
+            <div class="flex items-center space-x-2 text-amber-400 font-bold text-sm mb-1">
+              <i class="fa-solid fa-circle-info"></i>
+              <span id="lbl-notice-4-title">[택배 배송]</span>
+            </div>
+            <ul class="list-disc list-inside space-y-1 text-slate-400 pl-1">
+              <li id="lbl-notice-4-item1">매장 방문이 어려울 경우 택배 배송 가능 (배송비 8,000원)</li>
+            </ul>
+          </div>
         </div>
+
       </div>
     </div>
 
@@ -335,8 +379,23 @@
         lblNextDueTitle: "다음 이자 납부 예정일",
         lblAutoRollInfo: "* 원금을 상환하지 않는 경우 매월 동일한 일자에 월 이자가 자동으로 이월되어 안내됩니다.",
         lblAmountDue: "납부해야 할 이자",
-        lblInfoTitle: "이자 계산 및 납부 방식 안내",
-        lblInfoDesc: "각 담보 항목별로 설정된 이자율에 맞춰 월 이자가 계산되어 합산 안내됩니다.",
+        
+        notice1Title: "[이자 납부 및 연체 규정]",
+        notice1Item1: "유예 기간: 만기일 기준 3일까지 허용",
+        notice1Item2: "연체료: 3일 초과 시 하루 8,000원",
+        notice1Item3: "금 몰수: 무연락 10일 이상 연체 시, 포기로 간주하여 사전 통보 없이 즉시 몰수",
+        
+        notice2Title: "[원금 상환 안내]",
+        notice2Item1: "현금 또는 계좌이체만 가능",
+        notice2Item2: "계좌이체 시 본인 명의 계좌만 가능 (타인 명의 송금 절대 불가)",
+        
+        notice3Title: "[원금 감액 및 이자]",
+        notice3Item1: "원금 일부 상환 시 이자 감면 (단, 첫 달은 감면 없이 전액 부과)",
+        notice3Item2: "이자율은 기준에 따라 변동될 수 있음",
+        
+        notice4Title: "[택배 배송]",
+        notice4Item1: "매장 방문이 어려울 경우 택배 배송 가능 (배송비 8,000원)",
+
         adminTitle: "관리자 대시보드",
         lblTotalCust: "총 대출 고객 수",
         lblTotalPrincipal: "총 빌려준 금액 (원금)",
@@ -395,8 +454,23 @@
         lblNextDueTitle: "วันครบกำหนดชำระดอกเบี้ยถัดไป",
         lblAutoRollInfo: "* หากยังไม่ชำระเงินต้น วันกำหนดชำระดอกเบี้ยจะถูกต่ออายุโดยอัตโนมัติในวันเดียวกันของเดือนถัดไป",
         lblAmountDue: "ดอกเบี้ยที่ต้องชำระ",
-        lblInfoTitle: "คำแนะนำการคำนวณและชำระดอกเบี้ย",
-        lblInfoDesc: "ดอกเบี้ยรายเดือนจะถูกคำนวณตามอัตราดอกเบี้ยที่ตั้งไว้สำหรับหลักประกันแต่ละรายการและรวมกัน",
+        
+        notice1Title: "[ข้อกำหนดการชำระดอกเบี้ยและการค้างชำระ]",
+        notice1Item1: "ระยะเวลาผ่อนผัน: อนุญาตไม่เกิน 3 วันจากวันครบกำหนด",
+        notice1Item2: "ค่าปรับค้างชำระ: 8,000 วอน/วัน หากเกิน 3 วัน",
+        notice1Item3: "การยึดทอง: หากค้างชำระเกิน 10 วันโดยไม่ติดต่อ ถือว่าสละสิทธิ์และยึดทันทีโดยไม่แจ้งให้ทราบล่วงหน้า",
+        
+        notice2Title: "[คำแนะนำการชำระคืนเงินต้น]",
+        notice2Item1: "ชำระด้วยเงินสดหรือโอนผ่านบัญชีเท่านั้น",
+        notice2Item2: "กรณีโอนเงิน ต้องใช้บัญชีที่เป็นชื่อตนเองเท่านั้น (ห้ามโอนจากบัญชีบุคคลอื่น)",
+        
+        notice3Title: "[การลดเงินต้นและดอกเบี้ย]",
+        notice3Item1: "ลดดอกเบี้ยเมื่อชำระคืนเงินต้นบางส่วน (เว้นแต่เดือนแรกจะคิดเต็มจำนวน)",
+        notice3Item2: "อัตราดอกเบี้ยอาจเปลี่ยนแปลงได้ตามเกณฑ์",
+        
+        notice4Title: "[การจัดส่งพัสดุ]",
+        notice4Item1: "หากไม่สะดวกมาที่ร้าน สามารถจัดส่งทางพัสดุได้ (ค่าจัดส่ง 8,000 วอน)",
+
         adminTitle: "แผงควบคุมผู้ดูแลระบบ",
         lblTotalCust: "จำนวนลูกค้าทั้งหมด",
         lblTotalPrincipal: "ยอดเงินต้นรวมทั้งหมด",
@@ -463,8 +537,24 @@
       document.getElementById('lbl-next-due-title').innerText = t.lblNextDueTitle;
       document.getElementById('lbl-auto-roll-info').innerText = t.lblAutoRollInfo;
       document.getElementById('lbl-amount-due').innerText = t.lblAmountDue;
-      document.getElementById('lbl-info-title').innerText = t.lblInfoTitle;
-      document.getElementById('lbl-info-desc').innerText = t.lblInfoDesc;
+
+      // 유의사항 다국어 설정
+      document.getElementById('lbl-notice-1-title').innerText = t.notice1Title;
+      document.getElementById('lbl-notice-1-item1').innerText = t.notice1Item1;
+      document.getElementById('lbl-notice-1-item2').innerText = t.notice1Item2;
+      document.getElementById('lbl-notice-1-item3').innerText = t.notice1Item3;
+
+      document.getElementById('lbl-notice-2-title').innerText = t.notice2Title;
+      document.getElementById('lbl-notice-2-item1').innerText = t.notice2Item1;
+      document.getElementById('lbl-notice-2-item2').innerText = t.notice2Item2;
+
+      document.getElementById('lbl-notice-3-title').innerText = t.notice3Title;
+      document.getElementById('lbl-notice-3-item1').innerText = t.notice3Item1;
+      document.getElementById('lbl-notice-3-item2').innerText = t.notice3Item2;
+
+      document.getElementById('lbl-notice-4-title').innerText = t.notice4Title;
+      document.getElementById('lbl-notice-4-item1').innerText = t.notice4Item1;
+
       document.getElementById('admin-title').innerText = t.adminTitle;
       document.getElementById('btn-admin-logout').innerText = t.btnLogout;
       document.getElementById('lbl-total-cust').innerText = t.lblTotalCust;
