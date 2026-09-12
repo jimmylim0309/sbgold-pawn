@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>금 담보 대출 / 전당포 관리 시스템</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap');
+    body { font-family: 'Noto Sans KR', 'Kanit', sans-serif; }
+    .gold-gradient { background: linear-gradient(135deg, #bf953f 0%, #fcf6ba 25%, #b38728 50%, #fbf5b7 75%, #aa771c 100%); }
+    .gold-card { background: linear-gradient(145deg, #1e293b, #0f172a); border: 1px solid rgba(212, 175, 55, 0.3); }
+    .gold-btn { background: linear-gradient(135deg, #d4af37, #aa771c); color: #000; font-weight: 700; }
+    .gold-btn:hover { background: linear-gradient(135deg, #f3e5ab, #c59b27); }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between">
+
+  <!-- 헤더 -->
+  <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-50 px-4 py-3 flex justify-between items-center">
+    <div class="flex items-center space-x-2">
+      <div class="w-10 h-10 rounded-full gold-gradient flex items-center justify-center text-slate-950 font-bold text-xl shadow-lg">
+        <i class="fa-solid fa-[#000] fa-coins"></i>
+      </div>
+      <div>
+        <h1 class="text-lg font-bold text-amber-400 leading-tight" id="header-title">GOLD PAWN SERVICE</h1>
+        <p class="text-xs text-slate-400" id="header-subtitle">금 담보 대출 이자 관리 시스템</p>
+      </div>
+    </div>
+    
+    <!-- 언어 변경 -->
+    <div class="flex items-center space-x-2 bg-slate-800 p-1 rounded-lg border border-slate-700">
+      <button id="lang-ko" onclick="setLanguage('ko')" class="px-3 py-1 text-xs rounded font-medium bg-amber-500 text-slate-950">한국어</button>
+      <button id="lang-th" onclick="setLanguage('th')" class="px-3 py-1 text-xs rounded font-medium text-slate-400 hover:text-white">ไทย</button>
+    </div>
+  </header>
+
+  <!-- 메인 컨테이너 -->
+  <main class="container mx-auto px-4 py-8 max-w-4xl flex-grow">
+
+    <!-- 로그인 선택 / 로그인 화면 -->
+    <div id="section-login" class="max-w-md mx-auto">
+      <div class="gold-card rounded-2xl p-6 shadow-2xl mb-6 text-center">
+        <h2 class="text-2xl font-bold text-amber-400 mb-2" id="login-title">시스템 로그인</h2>
+        <p class="text-slate-400 text-sm mb-6" id="login-desc">고객 조회 및 관리자 접근을 위해 로그인해주세요.</p>
+
+        <!-- 탭 버튼 -->
+        <div class="grid grid-cols-2 gap-2 bg-slate-900 p-1 rounded-xl mb-6">
+          <button id="tab-cust-btn" onclick="switchLoginTab('customer')" class="py-2.5 rounded-lg text-sm font-semibold bg-amber-500 text-slate-950 transition">
+            <i class="fa-solid fa-user mr-1"></i> <span id="tab-customer">고객 로그인</span>
+          </button>
+          <button id="tab-admin-btn" onclick="switchLoginTab('admin')" class="py-2.5 rounded-lg text-sm font-semibold text-slate-400 hover:text-white transition">
+            <i class="fa-solid fa-user-shield mr-1"></i> <span id="tab-admin">관리자 로그인</span>
+          </button>
+        </div>
+
+        <!-- 고객 로그인 폼 -->
+        <form id="form-customer-login" onsubmit="handleCustomerLogin(event)" class="space-y-4">
+          <div>
+            <label class="block text-left text-xs font-medium text-slate-400 mb-1" id="lbl-phone">전화번호</label>
+            <input type="text" id="cust-phone" placeholder="01012345678" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-slate-100 focus:outline-none focus:border-amber-500">
+          </div>
+          <div>
+            <label class="block text-left text-xs font-medium text-slate-400 mb-1" id="lbl-cust-pw">비밀번호</label>
+            <input type="password" id="cust-password" placeholder="••••" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-slate-100 focus:outline-none focus:border-amber-500">
+          </div>
+          <button type="submit" class="w-full gold-btn py-3 rounded-lg shadow-lg font-bold transition text-base">
+            <span id="btn-cust-login">조회하기</span>
+          </button>
+        </form>
+
+        <!-- 관리자 로그인 폼 -->
+        <form id="form-admin-login" onsubmit="handleAdminLogin(event)" class="space-y-4 hidden">
+          <div>
+            <label class="block text-left text-xs font-medium text-slate-400 mb-1" id="lbl-admin-pw">관리자 비밀번호</label>
+            <input type="password" id="admin-password" placeholder="••••" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-slate-100 focus:outline-none focus:border-amber-500">
+          </div>
+          <button type="submit" class="w-full gold-btn py-3 rounded-lg shadow-lg font-bold transition text-base">
+            <span id="btn-admin-login">관리자 접속</span>
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- 고객 대시보드 화면 -->
+    <div id="section-customer-dashboard" class="hidden space-y-6">
+      <div class="flex justify-between items-center bg-slate-900 p-4 rounded-xl border border-slate-800">
+        <div>
+          <span class="text-xs text-slate-400" id="lbl-welcome">반갑습니다,</span>
+          <h2 class="text-xl font-bold text-amber-400" id="cust-name-display">-</h2>
+        </div>
+        <button onclick="logout()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-medium">
+          <i class="fa-solid fa-right-from-bracket mr-1"></i> <span id="btn-logout">로그아웃</span>
+        </button>
+      </div>
+
+      <!-- 대출 내역 카드 -->
+      <div class="gold-card rounded-2xl p-6 shadow-xl space-y-6">
+        <div class="flex justify-between items-center border-b border-slate-800 pb-4">
+          <div>
+            <span class="text-xs text-slate-400" id="lbl-loan-date">대출 일자</span>
+            <p class="text-lg font-semibold text-slate-200" id="cust-loan-date">-</p>
+          </div>
+          <span class="px-3 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" id="lbl-status-active">정상 이용중</span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="bg-slate-900/80 p-4 rounded-xl border border-slate-800">
+            <span class="text-xs text-slate-400 block mb-1" id="lbl-principal">원금 (빌린 금액)</span>
+            <p class="text-2xl font-bold text-white" id="cust-principal">-</p>
+          </div>
+          <div class="bg-slate-900/80 p-4 rounded-xl border border-slate-800">
+            <span class="text-xs text-slate-400 block mb-1" id="lbl-rate">월 이자율</span>
+            <p class="text-2xl font-bold text-amber-400" id="cust-rate">-</p>
+          </div>
+          <div class="bg-slate-900/80 p-4 rounded-xl border border-slate-800">
+            <span class="text-xs text-slate-400 block mb-1" id="lbl-monthly-interest">월 이자 비용</span>
+            <p class="text-2xl font-bold text-amber-400" id="cust-interest-amount">-</p>
+          </div>
+        </div>
+
+        <!-- 핵심 납부 안내 영역 -->
+        <div class="bg-gradient-to-r from-amber-600 to-amber-700 text-slate-950 p-6 rounded-xl shadow-lg flex flex-col md:flex-row justify-between items-center gap-4">
+          <div>
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-900" id="lbl-next-due-title">다음 이자 납부 예정일</span>
+            <h3 class="text-3xl font-black text-slate-950 mt-1" id="cust-next-due-date">-</h3>
+            <p class="text-xs text-slate-900/80 mt-2" id="lbl-auto-roll-info">* 원금을 상환하지 않는 경우 매월 동일한 일자에 월 이자가 자동으로 이월되어 안내됩니다.</p>
+          </div>
+          <div class="bg-slate-950 text-amber-400 px-6 py-4 rounded-xl w-full md:w-auto text-center border border-amber-500/30">
+            <span class="text-xs text-slate-400 block" id="lbl-amount-due">납부해야 할 이자</span>
+            <span class="text-2xl font-black" id="cust-pay-amount">-</span>
+          </div>
+        </div>
+
+        <!-- 이자 계산 및 납부 방식 안내 -->
+        <div class="bg-slate-900/50 rounded-xl p-4 border border-slate-800/80 text-xs text-slate-400 space-y-1">
+          <div class="flex items-center space-x-2 text-amber-400 font-semibold mb-1">
+            <i class="fa-solid fa-circle-info"></i>
+            <span id="lbl-info-title">이자 계산 및 납부 방식 안내</span>
+          </div>
+          <p id="lbl-info-desc">예시) 9월 12일에 4,600,000원을 월 3% 이자로 대출받으신 경우, 다음 달 10월 12일에 138,000원의 이자를 납부하셔야 합니다.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 관리자 대시보드 화면 -->
+    <div id="section-admin-dashboard" class="hidden space-y-6">
+      <div class="flex justify-between items-center bg-slate-900 p-4 rounded-xl border border-slate-800">
+        <h2 class="text-xl font-bold text-amber-400" id="admin-title">관리자 대시보드</h2>
+        <button onclick="logout()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-medium">
+          <i class="fa-solid fa-right-from-bracket mr-1"></i> <span id="btn-admin-logout">로그아웃</span>
+        </button>
+      </div>
+
+      <!-- 요약 통계 -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="gold-card p-5 rounded-xl">
+          <span class="text-xs text-slate-400" id="lbl-total-cust">총 대출 고객 수</span>
+          <p class="text-3xl font-bold text-white mt-2" id="stat-total-cust">0 명</p>
+        </div>
+        <div class="gold-card p-5 rounded-xl">
+          <span class="text-xs text-slate-400" id="lbl-total-principal">총 빌려준 금액 (원금)</span>
+          <p class="text-3xl font-bold text-amber-400 mt-2" id="stat-total-principal">0 원</p>
+        </div>
+        <div class="gold-card p-5 rounded-xl">
+          <span class="text-xs text-slate-400" id="lbl-total-monthly-interest">월 총 예상 이자 수입</span>
+          <p class="text-3xl font-bold text-emerald-400 mt-2" id="stat-total-interest">0 원</p>
+        </div>
+      </div>
+
+      <!-- 고객 등록 폼 -->
+      <div class="gold-card p-6 rounded-xl space-y-4">
+        <h3 class="text-lg font-bold text-amber-400 border-b border-slate-800 pb-2" id="title-add-cust">신규 고객 등록</h3>
+        <form onsubmit="handleAddCustomer(event)" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-xs text-slate-400 mb-1" id="lbl-input-name">고객 이름</label>
+            <input type="text" id="add-name" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-sm">
+          </div>
+          <div>
+            <label class="block text-xs text-slate-400 mb-1" id="lbl-input-phone">전화번호 (아이디)</label>
+            <input type="text" id="add-phone" required placeholder="01012345678" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-sm">
+          </div>
+          <div>
+            <label class="block text-xs text-slate-400 mb-1" id="lbl-input-pw">비밀번호</label>
+            <input type="password" id="add-pw" required placeholder="1234" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-sm">
+          </div>
+          <div>
+            <label class="block text-xs text-slate-400 mb-1" id="lbl-input-date">대출 날짜</label>
+            <input type="date" id="add-date" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-sm text-slate-100">
+          </div>
+          <div>
+            <label class="block text-xs text-slate-400 mb-1" id="lbl-input-amount">대출 원금 (원/바트)</label>
+            <input type="number" id="add-amount" required placeholder="4600000" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-sm">
+          </div>
+          <div>
+            <label class="block text-xs text-slate-400 mb-1" id="lbl-input-rate">월 이자율 (%)</label>
+            <input type="number" step="0.1" id="add-rate" required placeholder="3" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-sm">
+          </div>
+          <div class="md:col-span-2 lg:col-span-3">
+            <button type="submit" class="w-full gold-btn py-3 rounded-lg font-bold">
+              <i class="fa-solid fa-plus mr-1"></i> <span id="btn-add-cust">고객 등록 및 대출 정보 추가</span>
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- 일자별 이자 수금 목록 -->
+      <div class="gold-card p-6 rounded-xl space-y-4">
+        <h3 class="text-lg font-bold text-amber-400 border-b border-slate-800 pb-2" id="title-daily-schedule">일자별 이자 수금 예정</h3>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-sm text-slate-300">
+            <thead class="bg-slate-900 text-xs text-slate-400 uppercase border-b border-slate-800">
+              <tr>
+                <th class="py-3 px-4" id="th-name">고객명</th>
+                <th class="py-3 px-4" id="th-phone">전화번호</th>
+                <th class="py-3 px-4" id="th-loan-date">대출일</th>
+                <th class="py-3 px-4" id="th-due-date">다음 납부 예정일</th>
+                <th class="py-3 px-4" id="th-principal">원금</th>
+                <th class="py-3 px-4" id="th-rate">월 이자율</th>
+                <th class="py-3 px-4 text-right" id="th-interest">납부할 이자</th>
+              </tr>
+            </thead>
+            <tbody id="table-schedule-body" class="divide-y divide-slate-800">
+              <!-- JS 로 생성됨 -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- 푸터 -->
+  <footer class="border-t border-slate-800 bg-slate-900 py-4 text-center text-xs text-slate-500">
+    <p>© 2026 Gold Pawn Management System. All rights reserved.</p>
+  </footer>
+
+  <script>
+    // 샘플 데모 데이터
+    let customers = [
+      { id: 1, name: "Somchai", phone: "01012345678", pw: "1234", loanDate: "2026-09-12", principal: 4600000, rate: 3.0 }
+    ];
+
+    let currentLang = 'ko';
+
+    // 다국어 텍스트 데이터
+    const i18n = {
+      ko: {
+        headerTitle: "GOLD PAWN SERVICE",
+        headerSubtitle: "금 담보 대출 이자 관리 시스템",
+        loginTitle: "시스템 로그인",
+        loginDesc: "고객 조회 및 관리자 접근을 위해 로그인해주세요.",
+        tabCustomer: "고객 로그인",
+        tabAdmin: "관리자 로그인",
+        lblPhone: "전화번호",
+        lblCustPw: "비밀번호",
+        btnCustLogin: "조회하기",
+        lblAdminPw: "관리자 비밀번호",
+        btnAdminLogin: "관리자 접속",
+        lblWelcome: "반갑습니다,",
+        btnLogout: "로그아웃",
+        lblLoanDate: "대출 일자",
+        lblStatusActive: "정상 이용중",
+        lblPrincipal: "원금 (빌린 금액)",
+        lblRate: "월 이자율",
+        lblMonthlyInterest: "월 이자 비용",
+        lblNextDueTitle: "다음 이자 납부 예정일",
+        lblAutoRollInfo: "* 원금을 상환하지 않는 경우 매월 동일한 일자에 월 이자가 자동으로 이월되어 안내됩니다.",
+        lblAmountDue: "납부해야 할 이자",
+        lblInfoTitle: "이자 계산 및 납부 방식 안내",
+        lblInfoDesc: "예시) 9월 12일에 4,600,000원을 월 3% 이자로 대출받으신 경우, 다음 달 10월 12일에 138,000원의 이자를 납부하셔야 합니다.",
+        adminTitle: "관리자 대시보드",
+        lblTotalCust: "총 대출 고객 수",
+        lblTotalPrincipal: "총 빌려준 금액 (원금)",
+        lblTotalMonthlyInterest: "월 총 예상 이자 수입",
+        titleAddCust: "신규 고객 등록",
+        lblInputName: "고객 이름",
+        lblInputPhone: "전화번호 (아이디)",
+        lblInputPw: "비밀번호",
+        lblInputDate: "대출 날짜",
+        lblInputAmount: "대출 원금 (원/바트)",
+        lblInputRate: "월 이자율 (%)",
+        btnAddCust: "고객 등록 및 대출 정보 추가",
+        titleDailySchedule: "일자별 이자 수금 예정",
+        thName: "고객명",
+        thPhone: "전화번호",
+        thLoanDate: "대출일",
+        thDueDate: "다음 납부 예정일",
+        thPrincipal: "원금",
+        thRate: "월 이자율",
+        thInterest: "납부할 이자"
+      },
+      th: {
+        headerTitle: "บริการจำนำทองคำ",
+        headerSubtitle: "ระบบจัดการดอกเบี้ยกู้ยืมโดยใช้ทองคำเป็นประกัน",
+        loginTitle: "เข้าสู่ระบบ",
+        loginDesc: "กรุณาเข้าสู่ระบบเพื่อตรวจสอบข้อมูล หรือเข้าสู่ระบบผู้ดูแล",
+        tabCustomer: "เข้าสู่ระบบสำหรับลูกค้า",
+        tabAdmin: "เข้าสู่ระบบผู้ดูแล",
+        lblPhone: "หมายเลขโทรศัพท์",
+        lblCustPw: "รหัสผ่าน",
+        btnCustLogin: "ตรวจสอบข้อมูล",
+        lblAdminPw: "รหัสผ่านผู้ดูแลระบบ",
+        btnAdminLogin: "เข้าสู่ระบบผู้ดูแล",
+        lblWelcome: "ยินดีต้อนรับ,",
+        btnLogout: "ออกจากระบบ",
+        lblLoanDate: "วันที่กู้ยืม",
+        lblStatusActive: "สถานะปกติ",
+        lblPrincipal: "เงินต้น (จำนวนเงินที่กู้)",
+        lblRate: "อัตราดอกเบี้ยรายเดือน",
+        lblMonthlyInterest: "ดอกเบี้ยต่อเดือน",
+        lblNextDueTitle: "วันครบกำหนดชำระดอกเบี้ยถัดไป",
+        lblAutoRollInfo: "* หากยังไม่ชำระเงินต้น วันกำหนดชำระดอกเบี้ยจะถูกต่ออายุโดยอัตโนมัติในวันเดียวกันของเดือนถัดไป",
+        lblAmountDue: "ดอกเบี้ยที่ต้องชำระ",
+        lblInfoTitle: "คำแนะนำการคำนวณและชำระดอกเบี้ย",
+        lblInfoDesc: "ตัวอย่าง: หากกู้เงิน 4,600,000 บาท ในวันที่ 12 กันยายน ด้วยดอกเบี้ย 3% ต่อเดือน คุณจะต้องชำระดอกเบี้ย 138,000 บาท ในวันที่ 12 ตุลาคาม ถัดไป",
+        adminTitle: "แผงควบคุมผู้ดูแลระบบ",
+        lblTotalCust: "จำนวนลูกค้าทั้งหมด",
+        lblTotalPrincipal: "ยอดเงินต้นรวมทั้งหมด",
+        lblTotalMonthlyInterest: "รายได้ดอกเบี้ยต่อเดือนรวม",
+        titleAddCust: "ลงทะเบียนลูกค้าใหม่",
+        lblInputName: "ชื่อลูกค้า",
+        lblInputPhone: "เบอร์โทรศัพท์ (ID)",
+        lblInputPw: "รหัสผ่าน",
+        lblInputDate: "วันที่กู้ยืม",
+        lblInputAmount: "เงินต้นที่กู้ (บาท)",
+        lblInputRate: "อัตราดอกเบี้ยต่อเดือน (%)",
+        btnAddCust: "บันทึกข้อมูลลูกค้า",
+        titleDailySchedule: "ตารางกำหนดชำระดอกเบี้ย",
+        thName: "ชื่อลูกค้า",
+        thPhone: "เบอร์โทรศัพท์",
+        thLoanDate: "วันที่กู้",
+        thDueDate: "วันกำหนดชำระถัดไป",
+        thPrincipal: "เงินต้น",
+        thRate: "ดอกเบี้ย/เดือน",
+        thInterest: "ดอกเบี้ยที่ต้องชำระ"
+      }
+    };
+
+    function setLanguage(lang) {
+      currentLang = lang;
+      const t = i18n[lang];
+
+      document.getElementById('lang-ko').className = lang === 'ko' ? "px-3 py-1 text-xs rounded font-medium bg-amber-500 text-slate-950" : "px-3 py-1 text-xs rounded font-medium text-slate-400 hover:text-white";
+      document.getElementById('lang-th').className = lang === 'th' ? "px-3 py-1 text-xs rounded font-medium bg-amber-500 text-slate-950" : "px-3 py-1 text-xs rounded font-medium text-slate-400 hover:text-white";
+
+      document.getElementById('header-title').innerText = t.headerTitle;
+      document.getElementById('header-subtitle').innerText = t.headerSubtitle;
+      document.getElementById('login-title').innerText = t.loginTitle;
+      document.getElementById('login-desc').innerText = t.loginDesc;
+      document.getElementById('tab-customer').innerText = t.tabCustomer;
+      document.getElementById('tab-admin').innerText = t.tabAdmin;
+      document.getElementById('lbl-phone').innerText = t.lblPhone;
+      document.getElementById('lbl-cust-pw').innerText = t.lblCustPw;
+      document.getElementById('btn-cust-login').innerText = t.btnCustLogin;
+      document.getElementById('lbl-admin-pw').innerText = t.lblAdminPw;
+      document.getElementById('btn-admin-login').innerText = t.btnAdminLogin;
+      document.getElementById('lbl-welcome').innerText = t.lblWelcome;
+      document.getElementById('btn-logout').innerText = t.btnLogout;
+      document.getElementById('lbl-loan-date').innerText = t.lblLoanDate;
+      document.getElementById('lbl-status-active').innerText = t.lblStatusActive;
+      document.getElementById('lbl-principal').innerText = t.lblPrincipal;
+      document.getElementById('lbl-rate').innerText = t.lblRate;
+      document.getElementById('lbl-monthly-interest').innerText = t.lblMonthlyInterest;
+      document.getElementById('lbl-next-due-title').innerText = t.lblNextDueTitle;
+      document.getElementById('lbl-auto-roll-info').innerText = t.lblAutoRollInfo;
+      document.getElementById('lbl-amount-due').innerText = t.lblAmountDue;
+      document.getElementById('lbl-info-title').innerText = t.lblInfoTitle;
+      document.getElementById('lbl-info-desc').innerText = t.lblInfoDesc;
+      document.getElementById('admin-title').innerText = t.adminTitle;
+      document.getElementById('btn-admin-logout').innerText = t.btnLogout;
+      document.getElementById('lbl-total-cust').innerText = t.lblTotalCust;
+      document.getElementById('lbl-total-principal').innerText = t.lblTotalPrincipal;
+      document.getElementById('lbl-total-monthly-interest').innerText = t.lblTotalMonthlyInterest;
+      document.getElementById('title-add-cust').innerText = t.titleAddCust;
+      document.getElementById('lbl-input-name').innerText = t.lblInputName;
+      document.getElementById('lbl-input-phone').innerText = t.lblInputPhone;
+      document.getElementById('lbl-input-pw').innerText = t.lblInputPw;
+      document.getElementById('lbl-input-date').innerText = t.lblInputDate;
+      document.getElementById('lbl-input-amount').innerText = t.lblInputAmount;
+      document.getElementById('lbl-input-rate').innerText = t.lblInputRate;
+      document.getElementById('btn-add-cust').innerText = t.btnAddCust;
+      document.getElementById('title-daily-schedule').innerText = t.titleDailySchedule;
+      document.getElementById('th-name').innerText = t.thName;
+      document.getElementById('th-phone').innerText = t.thPhone;
+      document.getElementById('th-loan-date').innerText = t.thLoanDate;
+      document.getElementById('th-due-date').innerText = t.thDueDate;
+      document.getElementById('th-principal').innerText = t.thPrincipal;
+      document.getElementById('th-rate').innerText = t.thRate;
+      document.getElementById('th-interest').innerText = t.thInterest;
+    }
+
+    // -------------------------------------------------------------
+    // 핵심 비즈니스 로직: 다음 이자 납부 예정일 계산 (대출 다음 달 기준)
+    // -------------------------------------------------------------
+    function getNextDueDate(loanDateStr) {
+      const loanDate = new Date(loanDateStr);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      // 첫 번째 이자 납부일: 대출일로부터 무조건 '다음 달' 동일 날짜
+      let nextDue = new Date(loanDate.getFullYear(), loanDate.getMonth() + 1, loanDate.getDate());
+
+      // 오늘 날짜가 첫 이자 납부일을 넘었거나 오늘인 경우, 다음 달 동일 날짜로 이월
+      while (nextDue <= today) {
+        nextDue.setMonth(nextDue.getMonth() + 1);
+      }
+
+      return nextDue;
+    }
+
+    function formatDate(dateObj) {
+      const yyyy = dateObj.getFullYear();
+      const mm = String(dateObj.getMonth() + 1).padStart(2, '0');
+      const dd = String(dateObj.getDate()).padStart(2, '0');
+      return `${yyyy}-${mm}-${dd}`;
+    }
+
+    function formatCurrency(amount) {
+      return new Intl.NumberFormat().format(amount);
+    }
+
+    // 로그인 탭 전환
+    function switchLoginTab(tab) {
+      const custForm = document.getElementById('form-customer-login');
+      const adminForm = document.getElementById('form-admin-login');
+      const custBtn = document.getElementById('tab-cust-btn');
+      const adminBtn = document.getElementById('tab-admin-btn');
+
+      if (tab === 'customer') {
+        custForm.classList.remove('hidden');
+        adminForm.classList.add('hidden');
+        custBtn.className = "py-2.5 rounded-lg text-sm font-semibold bg-amber-500 text-slate-950 transition";
+        adminBtn.className = "py-2.5 rounded-lg text-sm font-semibold text-slate-400 hover:text-white transition";
+      } else {
+        custForm.classList.add('hidden');
+        adminForm.classList.remove('hidden');
+        adminBtn.className = "py-2.5 rounded-lg text-sm font-semibold bg-amber-500 text-slate-950 transition";
+        custBtn.className = "py-2.5 rounded-lg text-sm font-semibold text-slate-400 hover:text-white transition";
+      }
+    }
+
+    // 고객 로그인 처리
+    function handleCustomerLogin(e) {
+      e.preventDefault();
+      const phone = document.getElementById('cust-phone').value.trim();
+      const pw = document.getElementById('cust-password').value.trim();
+
+      const user = customers.find(c => c.phone === phone && c.pw === pw);
+
+      if (!user) {
+        alert(currentLang === 'ko' ? "일치하는 고객 정보가 없습니다." : "ไม่พบข้อมูลลูกค้าที่ตรงกัน");
+        return;
+      }
+
+      renderCustomerDashboard(user);
+    }
+
+    // 고객 화면 렌더링
+    function renderCustomerDashboard(user) {
+      const interestAmount = Math.round(user.principal * (user.rate / 100));
+      const nextDue = getNextDueDate(user.loanDate);
+
+      document.getElementById('cust-name-display').innerText = user.name;
+      document.getElementById('cust-loan-date').innerText = user.loanDate;
+      document.getElementById('cust-principal').innerText = `${formatCurrency(user.principal)} ${currentLang === 'ko' ? '원' : 'บาท'}`;
+      document.getElementById('cust-rate').innerText = `${user.rate} %`;
+      document.getElementById('cust-interest-amount').innerText = `${formatCurrency(interestAmount)} ${currentLang === 'ko' ? '원' : 'บาท'}`;
+      document.getElementById('cust-pay-amount').innerText = `${formatCurrency(interestAmount)} ${currentLang === 'ko' ? '원' : 'บาท'}`;
+
+      document.getElementById('cust-next-due-date').innerText = formatDate(nextDue);
+
+      document.getElementById('section-login').classList.add('hidden');
+      document.getElementById('section-customer-dashboard').classList.remove('hidden');
+    }
+
+    // 관리자 로그인 처리
+    function handleAdminLogin(e) {
+      e.preventDefault();
+      const pw = document.getElementById('admin-password').value.trim();
+
+      if (pw === "1234") { // 관리자 비밀번호
+        renderAdminDashboard();
+      } else {
+        alert(currentLang === 'ko' ? "비밀번호가 올바르지 않습니다." : "รหัสผ่านไม่ถูกต้อง");
+      }
+    }
+
+    // 관리자 대시보드 렌더링
+    function renderAdminDashboard() {
+      document.getElementById('section-login').classList.add('hidden');
+      document.getElementById('section-admin-dashboard').classList.remove('hidden');
+
+      let totalPrincipal = 0;
+      let totalInterest = 0;
+
+      const tbody = document.getElementById('table-schedule-body');
+      tbody.innerHTML = "";
+
+      customers.forEach(c => {
+        const interest = Math.round(c.principal * (c.rate / 100));
+        const nextDue = getNextDueDate(c.loanDate);
+
+        totalPrincipal += Number(c.principal);
+        totalInterest += interest;
+
+        const row = document.createElement('tr');
+        row.className = "hover:bg-slate-900/50";
+        row.innerHTML = `
+          <td class="py-3 px-4 font-semibold text-amber-400">${c.name}</td>
+          <td class="py-3 px-4">${c.phone}</td>
+          <td class="py-3 px-4">${c.loanDate}</td>
+          <td class="py-3 px-4 font-bold text-white">${formatDate(nextDue)}</td>
+          <td class="py-3 px-4">${formatCurrency(c.principal)}</td>
+          <td class="py-3 px-4">${c.rate}%</td>
+          <td class="py-3 px-4 text-right font-bold text-amber-400">${formatCurrency(interest)}</td>
+        `;
+        tbody.appendChild(row);
+      });
+
+      document.getElementById('stat-total-cust').innerText = `${customers.length} ${currentLang === 'ko' ? '명' : 'คน'}`;
+      document.getElementById('stat-total-principal').innerText = `${formatCurrency(totalPrincipal)} ${currentLang === 'ko' ? '원' : 'บาท'}`;
+      document.getElementById('stat-total-interest').innerText = `${formatCurrency(totalInterest)} ${currentLang === 'ko' ? '원' : 'บาท'}`;
+    }
+
+    // 고객 등록
+    function handleAddCustomer(e) {
+      e.preventDefault();
+      const name = document.getElementById('add-name').value.trim();
+      const phone = document.getElementById('add-phone').value.trim();
+      const pw = document.getElementById('add-pw').value.trim();
+      const loanDate = document.getElementById('add-date').value;
+      const principal = parseFloat(document.getElementById('add-amount').value);
+      const rate = parseFloat(document.getElementById('add-rate').value);
+
+      customers.push({
+        id: Date.now(),
+        name,
+        phone,
+        pw,
+        loanDate,
+        principal,
+        rate
+      });
+
+      alert(currentLang === 'ko' ? "신규 고객이 등록되었습니다." : "บันทึกข้อมูลลูกค้าใหม่เรียบร้อยแล้ว");
+      e.target.reset();
+      renderAdminDashboard();
+    }
+
+    // 로그아웃
+    function logout() {
+      document.getElementById('section-customer-dashboard').classList.add('hidden');
+      document.getElementById('section-admin-dashboard').classList.add('hidden');
+      document.getElementById('section-login').classList.remove('hidden');
+    }
+  </script>
+</body>
+</html>
