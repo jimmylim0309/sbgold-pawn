@@ -21,12 +21,11 @@
 
   <!-- 헤더 -->
   <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-50 px-4 py-3 flex justify-between items-center">
-    <div class="flex items-center space-x-2">
-      <div class="w-10 h-10 rounded-full gold-gradient flex items-center justify-center text-slate-950 font-bold text-xl shadow-lg">
-        <i class="fa-solid fa-coins"></i>
-      </div>
+    <div class="flex items-center space-x-3">
+      <!-- 원형 로고 이미지 반영 -->
+      <img src="./logo.jpg" alt="HANGTHONG SOMBOON Logo" class="w-10 h-10 rounded-full object-cover border border-amber-500/50 shadow-lg">
       <div>
-        <h1 class="text-lg font-bold text-amber-400 leading-tight" id="header-title">GOLD PAWN SERVICE</h1>
+        <h1 class="text-lg font-bold text-amber-400 leading-tight" id="header-title">HANGTHONG SOMBOON</h1>
         <p class="text-xs text-slate-400" id="header-subtitle">금 담보 대출 이자 관리 시스템</p>
       </div>
     </div>
@@ -134,7 +133,7 @@
           </div>
         </div>
 
-        <!-- 신규 유의사항 섹션 -->
+        <!-- 유의사항 섹션 -->
         <div class="bg-slate-900/50 rounded-xl p-5 border border-slate-800/80 text-xs text-slate-300 space-y-4">
           <!-- 1. 이자 납부 및 연체 규정 -->
           <div>
@@ -342,12 +341,12 @@
   </div>
 
   <footer class="border-t border-slate-800 bg-slate-900 py-4 text-center text-xs text-slate-500">
-    <p>© 2026 Gold Pawn Management System. All rights reserved.</p>
+    <p>© 2026 HANGTHONG SOMBOON. All rights reserved.</p>
   </footer>
 
   <script>
     // ==========================================
-    // Supabase 설정 (본인의 URL과 ANON KEY 입력)
+    // Supabase 설정
     // ==========================================
     const SUPABASE_URL = 'https://guwkdfqvljlzgjdpnonh.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd1d2tkZnF2bGpsemdqZHBub25oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkyMDg2ODEsImV4cCI6MjEwNDc4NDY4MX0.Q3ekrqKEIwEsNCJ36zHOj3rvUtRn57fZ417JchNwlcc';
@@ -358,7 +357,7 @@
 
     const i18n = {
       ko: {
-        headerTitle: "GOLD PAWN SERVICE",
+        headerTitle: "HANGTHONG SOMBOON",
         headerSubtitle: "금 담보 대출 이자 관리 시스템",
         loginTitle: "시스템 로그인",
         loginDesc: "고객 조회 및 관리자 접근을 위해 로그인해주세요.",
@@ -433,7 +432,7 @@
         phRate: "월 이자율 (%)"
       },
       th: {
-        headerTitle: "บริการจำนำทองคำ",
+        headerTitle: "ห้างทองสมบูรณ์ (HANGTHONG SOMBOON)",
         headerSubtitle: "ระบบจัดการดอกเบี้ยกู้ยืมโดยใช้ทองคำเป็นประกัน",
         loginTitle: "เข้าสู่ระบบ",
         loginDesc: "กรุณาเข้าสู่ระบบเพื่อตรวจสอบข้อมูล หรือเข้าสู่ระบบผู้ดูแล",
@@ -696,7 +695,7 @@
     }
 
     // ==========================================
-    // Supabase 연동 데이터 연동 및 처리 함수
+    // Supabase 연동 처리 함수
     // ==========================================
 
     async function loadCustomersFromSupabase() {
