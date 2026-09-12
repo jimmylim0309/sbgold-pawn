@@ -6,6 +6,8 @@
   <title>금 담보 대출 / 전당포 관리 시스템</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <!-- Supabase JS SDK 추가 -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap');
     body { font-family: 'Noto Sans KR', 'Kanit', sans-serif; }
@@ -300,20 +302,14 @@
   </footer>
 
   <script>
-    let customers = [
-      {
-        id: 1,
-        name: "Somchai",
-        phone: "01012345678",
-        pw: "1234",
-        loanDate: "2026-09-12",
-        items: [
-          { type: "목걸이", weight: "10g", amount: 2000000, rate: 3.0 },
-          { type: "반지", weight: "13g", amount: 2600000, rate: 2.5 }
-        ]
-      }
-    ];
+    // ==========================================
+    // Supabase 설정 (본인의 URL과 ANON KEY 입력)
+    // ==========================================
+    const SUPABASE_URL = 'YOUR_SUPABASE_URL';
+    const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+    let customers = [];
     let currentLang = 'ko';
 
     const i18n = {
@@ -507,7 +503,7 @@
       }
     }
 
-    function addGoldInputRow(containerId, data = { type: '', weight: '', amount: '', rate: '' }) {
+    function addGoldInputRow(containerId, data = { item_type: '', weight: '', amount: '', rate: '' }) {
       const container = document.getElementById(containerId);
       const row = document.createElement('div');
       row.className = "gold-item-row grid grid-cols-12 gap-2 items-center";
@@ -516,10 +512,10 @@
 
       row.innerHTML = `
         <div class="col-span-3">
-          <input type="text" placeholder="${t.phType}" value="${data.type}" required class="gold-type w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-xs">
+          <input type="text" placeholder="${t.phType}" value="${data.item_type || data.type || ''}" required class="gold-type w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-xs">
         </div>
         <div class="col-span-2">
-          <input type="text" placeholder="${t.phWeight}" value="${data.weight}" required class="gold-weight w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-xs">
+          <input type="text" placeholder="${t.phWeight}" value="${data.weight || ''}" required class="gold-weight w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-xs">
         </div>
         <div class="col-span-3">
           <input type="number" placeholder="${t.phAmount} (원)" value="${data.amount || ''}" required oninput="calcEditInterest()" class="gold-amount w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-xs">
@@ -552,13 +548,13 @@
       const items = [];
 
       rows.forEach(row => {
-        const type = row.querySelector('.gold-type').value.trim();
+        const item_type = row.querySelector('.gold-type').value.trim();
         const weight = row.querySelector('.gold-weight').value.trim();
         const amount = parseFloat(row.querySelector('.gold-amount').value) || 0;
         const rate = parseFloat(row.querySelector('.gold-rate').value) || 0;
 
-        if (type && weight && amount && rate) {
-          items.push({ type, weight, amount, rate });
+        if (item_type && weight && amount && rate) {
+          items.push({ item_type, weight, amount, rate });
         }
       });
 
@@ -609,17 +605,55 @@
       }
     }
 
-    function handleCustomerLogin(e) {
+    // ==========================================
+    // Supabase 연동 데이터 연동 및 처리 함수
+    // ==========================================
+
+    async function loadCustomersFromSupabase() {
+      const { data, error } = await supabaseClient
+        .from('customers')
+        .select('*, gold_items(*)');
+
+      if (error) {
+        console.error('Supabase fetch error:', error);
+        return [];
+      }
+
+      return data.map(c => ({
+        id: c.id,
+        name: c.name,
+        phone: c.phone,
+        pw: c.pw,
+        loanDate: c.loan_date,
+        items: c.gold_items || []
+      }));
+    }
+
+    async function handleCustomerLogin(e) {
       e.preventDefault();
       const phone = document.getElementById('cust-phone').value.trim();
       const pw = document.getElementById('cust-password').value.trim();
 
-      const user = customers.find(c => c.phone === phone && c.pw === pw);
+      const { data, error } = await supabaseClient
+        .from('customers')
+        .select('*, gold_items(*)')
+        .eq('phone', phone)
+        .eq('pw', pw)
+        .single();
 
-      if (!user) {
+      if (error || !data) {
         alert(currentLang === 'ko' ? "일치하는 고객 정보가 없습니다." : "ไม่พบข้อมูลลูกค้าที่ตรงกัน");
         return;
       }
+
+      const user = {
+        id: data.id,
+        name: data.name,
+        phone: data.phone,
+        pw: data.pw,
+        loanDate: data.loan_date,
+        items: data.gold_items || []
+      };
 
       renderCustomerDashboard(user);
     }
@@ -629,7 +663,7 @@
     }
 
     function renderCustomerDashboard(user) {
-      const totalPrincipal = user.items.reduce((sum, item) => sum + item.amount, 0);
+      const totalPrincipal = user.items.reduce((sum, item) => sum + Number(item.amount), 0);
       const interestAmount = calculateTotalInterest(user.items);
       const nextDue = getNextDueDate(user.loanDate);
 
@@ -643,7 +677,7 @@
       const goldList = document.getElementById('cust-gold-list');
       goldList.innerHTML = user.items.map((item, idx) => `
         <div class="flex justify-between items-center py-1 border-b border-slate-800/50">
-          <span>${idx + 1}. ${item.type} (${item.weight}) - 월 ${item.rate}%</span>
+          <span>${idx + 1}. ${item.item_type || item.type} (${item.weight}) - 월 ${item.rate}%</span>
           <span class="font-semibold text-amber-400">${formatCurrency(item.amount)} 원</span>
         </div>
       `).join('');
@@ -665,9 +699,11 @@
       }
     }
 
-    function renderAdminDashboard() {
+    async function renderAdminDashboard() {
       document.getElementById('section-login').classList.add('hidden');
       document.getElementById('section-admin-dashboard').classList.remove('hidden');
+
+      customers = await loadCustomersFromSupabase();
 
       let totalPrincipal = 0;
       let totalInterest = 0;
@@ -677,21 +713,19 @@
 
       const t = i18n[currentLang];
 
-      // 다음 납부 예정일 기준으로 오름차순 정렬
       const sortedCustomers = [...customers].sort((a, b) => {
         return getNextDueDate(a.loanDate) - getNextDueDate(b.loanDate);
       });
 
       sortedCustomers.forEach(c => {
-        const custPrincipal = c.items.reduce((sum, item) => sum + item.amount, 0);
+        const custPrincipal = c.items.reduce((sum, item) => sum + Number(item.amount), 0);
         const interest = calculateTotalInterest(c.items);
         const nextDue = getNextDueDate(c.loanDate);
 
         totalPrincipal += custPrincipal;
         totalInterest += interest;
 
-        // 금 상세 내역 텍스트 생성
-        const goldDetails = c.items.map(item => `• ${item.type} (${item.weight}, ${item.rate}%): ${formatCurrency(item.amount)} 원`).join('<br>');
+        const goldDetails = c.items.map(item => `• ${item.item_type || item.type} (${item.weight}, ${item.rate}%): ${formatCurrency(item.amount)} 원`).join('<br>');
 
         const row = document.createElement('tr');
         row.className = "hover:bg-slate-900/50 border-b border-slate-800";
@@ -723,19 +757,18 @@
       document.getElementById('stat-total-principal').innerText = `${formatCurrency(totalPrincipal)} 원`;
       document.getElementById('stat-total-interest').innerText = `${formatCurrency(totalInterest)} 원`;
 
-      // 신규 등록용 동적 입력 라인 초기화 (1개)
       const container = document.getElementById('add-gold-container');
       if (container.children.length === 0) {
         addGoldInputRow('add-gold-container');
       }
     }
 
-    function handleAddCustomer(e) {
+    async function handleAddCustomer(e) {
       e.preventDefault();
       const name = document.getElementById('add-name').value.trim();
       const phone = document.getElementById('add-phone').value.trim();
       const pw = document.getElementById('add-pw').value.trim();
-      const loanDate = document.getElementById('add-date').value;
+      const loan_date = document.getElementById('add-date').value;
       const items = getGoldItemsData('add-gold-container');
 
       if (items.length === 0) {
@@ -743,14 +776,35 @@
         return;
       }
 
-      customers.push({
-        id: Date.now(),
-        name,
-        phone,
-        pw,
-        loanDate,
-        items
-      });
+      // 1. customers 테이블에 신규 등록
+      const { data: custData, error: custError } = await supabaseClient
+        .from('customers')
+        .insert([{ name, phone, pw, loan_date }])
+        .select()
+        .single();
+
+      if (custError) {
+        alert("고객 등록 오류: " + custError.message);
+        return;
+      }
+
+      // 2. gold_items 테이블에 담보 정보 등록
+      const goldPayload = items.map(item => ({
+        customer_id: custData.id,
+        item_type: item.item_type,
+        weight: item.weight,
+        amount: item.amount,
+        rate: item.rate
+      }));
+
+      const { error: goldError } = await supabaseClient
+        .from('gold_items')
+        .insert(goldPayload);
+
+      if (goldError) {
+        alert("담보 정보 등록 오류: " + goldError.message);
+        return;
+      }
 
       alert(currentLang === 'ko' ? "신규 고객이 등록되었습니다." : "บันทึกข้อมูลลูกค้าใหม่เรียบร้อยแล้ว");
       e.target.reset();
@@ -758,8 +812,6 @@
       addGoldInputRow('add-gold-container');
       renderAdminDashboard();
     }
-
-    // --- 수정 및 삭제 기능 관련 함수 ---
 
     function openEditModal(custId) {
       const customer = customers.find(c => c.id === custId);
@@ -794,31 +846,58 @@
       document.getElementById('modal-edit-customer').classList.add('hidden');
     }
 
-    function handleUpdateCustomer(e) {
+    async function handleUpdateCustomer(e) {
       e.preventDefault();
       const id = Number(document.getElementById('edit-id').value);
-      const custIndex = customers.findIndex(c => c.id === id);
+      const items = getGoldItemsData('edit-gold-container');
 
-      if (custIndex !== -1) {
-        const items = getGoldItemsData('edit-gold-container');
-        if (items.length === 0) {
-          alert(currentLang === 'ko' ? "최소 1개 이상의 금 정보를 올바르게 입력해주세요." : "กรุณากรอกข้อมูลทองคำอย่างน้อย 1 รายการ");
-          return;
-        }
-
-        customers[custIndex].name = document.getElementById('edit-name').value.trim();
-        customers[custIndex].phone = document.getElementById('edit-phone').value.trim();
-        customers[custIndex].pw = document.getElementById('edit-pw').value.trim();
-        customers[custIndex].loanDate = document.getElementById('edit-date').value;
-        customers[custIndex].items = items;
-
-        closeEditModal();
-        renderAdminDashboard();
-        alert(currentLang === 'ko' ? "고객 정보가 수정되었습니다." : "แก้ไขข้อมูลลูกค้าเรียบร้อยแล้ว");
+      if (items.length === 0) {
+        alert(currentLang === 'ko' ? "최소 1개 이상의 금 정보를 올바르게 입력해주세요." : "กรุณากรอกข้อมูลทองคำอย่างน้อย 1 รายการ");
+        return;
       }
+
+      // 1. customers 정보 업데이트
+      const { error: custError } = await supabaseClient
+        .from('customers')
+        .update({
+          name: document.getElementById('edit-name').value.trim(),
+          phone: document.getElementById('edit-phone').value.trim(),
+          pw: document.getElementById('edit-pw').value.trim(),
+          loan_date: document.getElementById('edit-date').value
+        })
+        .eq('id', id);
+
+      if (custError) {
+        alert("고객 수정 오류: " + custError.message);
+        return;
+      }
+
+      // 2. 기존 gold_items 삭제 후 새 항목 재등록
+      await supabaseClient.from('gold_items').delete().eq('customer_id', id);
+
+      const goldPayload = items.map(item => ({
+        customer_id: id,
+        item_type: item.item_type,
+        weight: item.weight,
+        amount: item.amount,
+        rate: item.rate
+      }));
+
+      const { error: goldError } = await supabaseClient
+        .from('gold_items')
+        .insert(goldPayload);
+
+      if (goldError) {
+        alert("담보 정보 수정 오류: " + goldError.message);
+        return;
+      }
+
+      closeEditModal();
+      renderAdminDashboard();
+      alert(currentLang === 'ko' ? "고객 정보가 수정되었습니다." : "แก้ไขข้อมูลลูกค้าเรียบร้อยแล้ว");
     }
 
-    function deleteCustomer(custId) {
+    async function deleteCustomer(custId) {
       const customer = customers.find(c => c.id === custId);
       if (!customer) return;
 
@@ -827,7 +906,16 @@
         : `คุณต้องการลบข้อมูลของ '${customer.name}' ใช่หรือไม่?`;
 
       if (confirm(confirmMsg)) {
-        customers = customers.filter(c => c.id !== custId);
+        const { error } = await supabaseClient
+          .from('customers')
+          .delete()
+          .eq('id', custId);
+
+        if (error) {
+          alert("삭제 오류: " + error.message);
+          return;
+        }
+
         renderAdminDashboard();
       }
     }
