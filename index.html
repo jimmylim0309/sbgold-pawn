@@ -22,7 +22,6 @@
   <!-- 헤더 -->
   <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-50 px-4 py-3 flex justify-between items-center">
     <div class="flex items-center space-x-3">
-      <!-- 원형 로고 이미지 반영 -->
       <img src="./logo.jpg" alt="HANGTHONG SOMBOON Logo" class="w-10 h-10 rounded-full object-cover border border-amber-500/50 shadow-lg">
       <div>
         <h1 class="text-lg font-bold text-amber-400 leading-tight" id="header-title">HANGTHONG SOMBOON</h1>
@@ -116,9 +115,7 @@
         <!-- 맡긴 금 목록 정보 -->
         <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800 space-y-2">
           <h4 class="text-sm font-bold text-amber-400" id="lbl-cust-gold-items">맡기신 금 정보</h4>
-          <div id="cust-gold-list" class="space-y-1 text-xs text-slate-300">
-            <!-- JS 동적 생성 -->
-          </div>
+          <div id="cust-gold-list" class="space-y-1 text-xs text-slate-300"></div>
         </div>
 
         <div class="bg-gradient-to-r from-amber-600 to-amber-700 text-slate-950 p-6 rounded-xl shadow-lg flex flex-col md:flex-row justify-between items-center gap-4">
@@ -135,7 +132,6 @@
 
         <!-- 유의사항 섹션 -->
         <div class="bg-slate-900/50 rounded-xl p-5 border border-slate-800/80 text-xs text-slate-300 space-y-4">
-          <!-- 1. 이자 납부 및 연체 규정 -->
           <div>
             <div class="flex items-center space-x-2 text-amber-400 font-bold text-sm mb-1">
               <i class="fa-solid fa-circle-info"></i>
@@ -148,7 +144,6 @@
             </ul>
           </div>
 
-          <!-- 2. 원금 상환 안내 -->
           <div>
             <div class="flex items-center space-x-2 text-amber-400 font-bold text-sm mb-1">
               <i class="fa-solid fa-circle-info"></i>
@@ -160,7 +155,6 @@
             </ul>
           </div>
 
-          <!-- 3. 원금 감액 및 이자 -->
           <div>
             <div class="flex items-center space-x-2 text-amber-400 font-bold text-sm mb-1">
               <i class="fa-solid fa-circle-info"></i>
@@ -172,7 +166,6 @@
             </ul>
           </div>
 
-          <!-- 4. 택배 배송 -->
           <div>
             <div class="flex items-center space-x-2 text-amber-400 font-bold text-sm mb-1">
               <i class="fa-solid fa-circle-info"></i>
@@ -243,9 +236,7 @@
                 <i class="fa-solid fa-plus mr-1"></i> <span id="btn-add-gold-row">추가</span>
               </button>
             </div>
-            <div id="add-gold-container" class="space-y-2">
-              <!-- JS 동적 생성 -->
-            </div>
+            <div id="add-gold-container" class="space-y-2"></div>
           </div>
 
           <div>
@@ -272,9 +263,7 @@
                 <th class="py-3 px-4 text-center" id="th-action">관리</th>
               </tr>
             </thead>
-            <tbody id="table-schedule-body" class="divide-y divide-slate-800">
-              <!-- JS 동적 생성 -->
-            </tbody>
+            <tbody id="table-schedule-body" class="divide-y divide-slate-800"></tbody>
           </table>
         </div>
       </div>
@@ -321,9 +310,7 @@
               <i class="fa-solid fa-plus mr-1"></i> <span id="btn-edit-add-gold-row">추가</span>
             </button>
           </div>
-          <div id="edit-gold-container" class="space-y-2">
-            <!-- JS 동적 생성 -->
-          </div>
+          <div id="edit-gold-container" class="space-y-2"></div>
         </div>
 
         <!-- 실시간 이자 자동 계산 안내 박스 -->
@@ -349,7 +336,7 @@
     // Supabase 설정
     // ==========================================
     const SUPABASE_URL = 'https://guwkdfqvljlzgjdpnonh.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd1d2tkZnF2bGpsemdqZHBub25oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkyMDg2ODEsImV4cCI6MjEwNDc4NDY4MX0.Q3ekrqKEIwEsNCJ36zHOj3rvUtRn57fZ417JchNwlcc';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInRefiI6Imd1d2tkZnF2bGpsemdqZHBub25oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkyMDg2ODEsImV4cCI6MjEwNDc4NDY4MX0.Q3ekrqKEIwEsNCJ36zHOj3rvUtRn57fZ417JchNwlcc';
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     let customers = [];
@@ -426,6 +413,7 @@
         btnSaveEdit: "저장하기",
         btnEdit: "수정",
         btnDelete: "삭제",
+        btnPayCheck: "입금 확인",
         phType: "종류 (예: 목걸이)",
         phWeight: "무게 (예: 10g)",
         phAmount: "대출 원금",
@@ -501,6 +489,7 @@
         btnSaveEdit: "บันทึก",
         btnEdit: "แก้ไข",
         btnDelete: "ลบ",
+        btnPayCheck: "ยืนยันการชำระเงิน",
         phType: "ประเภท (เช่น สร้อยคอ)",
         phWeight: "น้ำหนัก (เช่น 10 กรัม)",
         phAmount: "เงินต้นกู้",
@@ -537,7 +526,6 @@
       document.getElementById('lbl-auto-roll-info').innerText = t.lblAutoRollInfo;
       document.getElementById('lbl-amount-due').innerText = t.lblAmountDue;
 
-      // 유의사항 다국어 설정
       document.getElementById('lbl-notice-1-title').innerText = t.notice1Title;
       document.getElementById('lbl-notice-1-item1').innerText = t.notice1Item1;
       document.getElementById('lbl-notice-1-item2').innerText = t.notice1Item2;
@@ -762,7 +750,6 @@
       document.getElementById('cust-interest-amount').innerText = `${formatCurrency(interestAmount)} 원`;
       document.getElementById('cust-pay-amount').innerText = `${formatCurrency(interestAmount)} 원`;
 
-      // 맡긴 금 상세 내역
       const goldList = document.getElementById('cust-gold-list');
       goldList.innerHTML = user.items.map((item, idx) => `
         <div class="flex justify-between items-center py-1 border-b border-slate-800/50">
@@ -829,13 +816,18 @@
           </td>
           <td class="py-3 px-4 text-right font-bold text-amber-400 align-top">${formatCurrency(interest)} 원</td>
           <td class="py-3 px-4 text-center align-top">
-            <div class="flex justify-center space-x-1">
-              <button onclick="openEditModal(${c.id})" class="px-2 py-1 bg-amber-500/20 text-amber-400 border border-amber-500/40 hover:bg-amber-500/40 rounded text-xs">
-                <i class="fa-solid fa-pen-to-square mr-1"></i>${t.btnEdit}
+            <div class="flex flex-col space-y-1">
+              <button onclick="confirmPayment(${c.id}, ${interest})" class="px-2 py-1 bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 hover:bg-emerald-500/40 rounded text-xs font-bold">
+                <i class="fa-solid fa-check mr-1"></i>${t.btnPayCheck}
               </button>
-              <button onclick="deleteCustomer(${c.id})" class="px-2 py-1 bg-rose-500/20 text-rose-400 border border-rose-500/40 hover:bg-rose-500/40 rounded text-xs">
-                <i class="fa-solid fa-trash mr-1"></i>${t.btnDelete}
-              </button>
+              <div class="flex justify-center space-x-1">
+                <button onclick="openEditModal(${c.id})" class="px-2 py-1 bg-amber-500/20 text-amber-400 border border-amber-500/40 hover:bg-amber-500/40 rounded text-xs">
+                  <i class="fa-solid fa-pen-to-square mr-1"></i>${t.btnEdit}
+                </button>
+                <button onclick="deleteCustomer(${c.id})" class="px-2 py-1 bg-rose-500/20 text-rose-400 border border-rose-500/40 hover:bg-rose-500/40 rounded text-xs">
+                  <i class="fa-solid fa-trash mr-1"></i>${t.btnDelete}
+                </button>
+              </div>
             </div>
           </td>
         `;
@@ -852,6 +844,49 @@
       }
     }
 
+    // 입금 확인 및 납부일 자동 연장 함수
+    async function confirmPayment(custId, interestAmount) {
+      const customer = customers.find(c => c.id === custId);
+      if (!customer) return;
+
+      const confirmMsg = currentLang === 'ko'
+        ? `'${customer.name}' 고객의 이자 입금(${formatCurrency(interestAmount)} 원)을 확인 처리하시겠습니까?\n다음 납부 예정일이 1달 뒤로 자동 연장됩니다.`
+        : `คุณต้องการยืนยันการชำระดอกเบี้ย (${formatCurrency(interestAmount)} วอน) ของ '${customer.name}' ใช่หรือไม่?\nวันกำหนดชำระจะถูกขยายออกไป 1 เดือนโดยอัตโนมัติ`;
+
+      if (!confirm(confirmMsg)) return;
+
+      // 1. payment_logs에 이력 저장
+      const { error: logError } = await supabaseClient
+        .from('payment_logs')
+        .insert([{
+          customer_id: custId,
+          amount: interestAmount,
+          note: '관리자 이자 입금 확인 완료'
+        }]);
+
+      if (logError) {
+        console.warn("Log error (기록용 테이블 확인 필요):", logError.message);
+      }
+
+      // 2. 대출 날짜를 1개월 뒤로 업데이트하여 다음 납부일 자동 갱신
+      const currDate = new Date(customer.loanDate);
+      currDate.setMonth(currDate.getMonth() + 1);
+      const newLoanDate = formatDate(currDate);
+
+      const { error: updateError } = await supabaseClient
+        .from('customers')
+        .update({ loan_date: newLoanDate })
+        .eq('id', custId);
+
+      if (updateError) {
+        alert("입금 처리 실패: " + updateError.message);
+        return;
+      }
+
+      alert(currentLang === 'ko' ? "입금 확인 처리 및 다음 납부일 연장이 완료되었습니다." : "ยืนยันการชำระเงินและขยายวันกำหนดชำระเรียบร้อยแล้ว");
+      renderAdminDashboard();
+    }
+
     async function handleAddCustomer(e) {
       e.preventDefault();
       const name = document.getElementById('add-name').value.trim();
@@ -865,7 +900,6 @@
         return;
       }
 
-      // 1. customers 테이블에 신규 등록
       const { data: custData, error: custError } = await supabaseClient
         .from('customers')
         .insert([{ name, phone, pw, loan_date }])
@@ -877,7 +911,6 @@
         return;
       }
 
-      // 2. gold_items 테이블에 담보 정보 등록
       const goldPayload = items.map(item => ({
         customer_id: custData.id,
         item_type: item.item_type,
@@ -945,7 +978,6 @@
         return;
       }
 
-      // 1. customers 정보 업데이트
       const { error: custError } = await supabaseClient
         .from('customers')
         .update({
@@ -961,7 +993,6 @@
         return;
       }
 
-      // 2. 기존 gold_items 삭제 후 새 항목 재등록
       await supabaseClient.from('gold_items').delete().eq('customer_id', id);
 
       const goldPayload = items.map(item => ({
