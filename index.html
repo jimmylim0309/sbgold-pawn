@@ -101,7 +101,7 @@
           <span class="px-3 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" id="lbl-status-active">정상 이용중</span>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div class="bg-slate-900/80 p-4 rounded-xl border border-slate-800">
             <span class="text-xs text-slate-400 block mb-1" id="lbl-principal">총 원금 (빌린 금액)</span>
             <p class="text-2xl font-bold text-white" id="cust-principal">-</p>
@@ -109,6 +109,10 @@
           <div class="bg-slate-900/80 p-4 rounded-xl border border-slate-800">
             <span class="text-xs text-slate-400 block mb-1" id="lbl-monthly-interest">월 총 이자 비용</span>
             <p class="text-2xl font-bold text-amber-400" id="cust-interest-amount">-</p>
+          </div>
+          <div class="bg-slate-900/80 p-4 rounded-xl border border-slate-800">
+            <span class="text-xs text-slate-400 block mb-1" id="lbl-total-paid-interest">총 누적 납부 이자</span>
+            <p class="text-2xl font-bold text-emerald-400" id="cust-total-paid-interest">0 원</p>
           </div>
         </div>
 
@@ -127,6 +131,14 @@
           <div class="bg-slate-950 text-amber-400 px-6 py-4 rounded-xl w-full md:w-auto text-center border border-amber-500/30">
             <span class="text-xs text-slate-400 block" id="lbl-amount-due">납부해야 할 이자</span>
             <span class="text-2xl font-black" id="cust-pay-amount">-</span>
+          </div>
+        </div>
+
+        <!-- 고객용 납부 내역 섹션 -->
+        <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800 space-y-3">
+          <h4 class="text-sm font-bold text-amber-400" id="lbl-cust-payment-history-title">이자 납부 이력 내역</h4>
+          <div id="cust-payment-history-list" class="space-y-2 text-xs">
+            <p class="text-xs text-slate-500 text-center py-2">내역을 불러오는 중...</p>
           </div>
         </div>
 
@@ -327,7 +339,7 @@
     </div>
   </div>
 
-  <!-- 입금 확인 및 납부 이력 관리 모달 (신규 추가) -->
+  <!-- 입금 확인 및 납부 이력 관리 모달 -->
   <div id="modal-payment" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden">
     <div class="gold-card w-full max-w-lg p-6 rounded-2xl shadow-2xl space-y-5 border border-amber-500/40 max-h-[90vh] overflow-y-auto">
       <div class="flex justify-between items-center border-b border-slate-800 pb-3">
@@ -411,10 +423,13 @@
         lblStatusActive: "정상 이용중",
         lblPrincipal: "총 원금 (빌린 금액)",
         lblMonthlyInterest: "월 총 이자 비용",
+        lblTotalPaidInterest: "총 누적 납부 이자",
         lblCustGoldItems: "맡기신 금 정보",
         lblNextDueTitle: "다음 이자 납부 예정일",
         lblAutoRollInfo: "* 원금을 상환하지 않는 경우 매월 동일한 일자에 월 이자가 자동으로 이월되어 안내됩니다.",
         lblAmountDue: "납부해야 할 이자",
+        lblCustPaymentHistoryTitle: "이자 납부 이력 내역",
+        lblNoPaymentHistory: "기록된 납부 내역이 없습니다.",
         
         notice1Title: "[이자 납부 및 연체 규정]",
         notice1Item1: "유예 기간: 만기일 기준 3일까지 허용",
@@ -498,10 +513,13 @@
         lblStatusActive: "สถานะปกติ",
         lblPrincipal: "เงินต้นรวม (จำนวนเงินที่กู้)",
         lblMonthlyInterest: "ดอกเบี้ยต่อเดือนรวม",
+        lblTotalPaidInterest: "ดอกเบี้ยที่ชำระแล้วสะสม",
         lblCustGoldItems: "ข้อมูลทองคำที่จำนำ",
         lblNextDueTitle: "วันครบกำหนดชำระดอกเบี้ยถัดไป",
         lblAutoRollInfo: "* หากยังไม่ชำระเงินต้น วันกำหนดชำระดอกเบี้ยจะถูกต่ออายุโดยอัตโนมัติในวันเดียวกันของเดือนถัดไป",
         lblAmountDue: "ดอกเบี้ยที่ต้องชำระ",
+        lblCustPaymentHistoryTitle: "ประวัติการชำระดอกเบี้ย",
+        lblNoPaymentHistory: "ไม่มีประวัติการชำระเงิน",
         
         notice1Title: "[ข้อกำหนดการชำระดอกเบี้ยและการค้างชำระ]",
         notice1Item1: "ระยะเวลาผ่อนผัน: อนุญาตไม่เกิน 3 วันจากวันครบกำหนด",
@@ -593,10 +611,12 @@
       document.getElementById('lbl-status-active').innerText = t.lblStatusActive;
       document.getElementById('lbl-principal').innerText = t.lblPrincipal;
       document.getElementById('lbl-monthly-interest').innerText = t.lblMonthlyInterest;
+      document.getElementById('lbl-total-paid-interest').innerText = t.lblTotalPaidInterest;
       document.getElementById('lbl-cust-gold-items').innerText = t.lblCustGoldItems;
       document.getElementById('lbl-next-due-title').innerText = t.lblNextDueTitle;
       document.getElementById('lbl-auto-roll-info').innerText = t.lblAutoRollInfo;
       document.getElementById('lbl-amount-due').innerText = t.lblAmountDue;
+      document.getElementById('lbl-cust-payment-history-title').innerText = t.lblCustPaymentHistoryTitle;
 
       document.getElementById('lbl-notice-1-title').innerText = t.notice1Title;
       document.getElementById('lbl-notice-1-item1').innerText = t.notice1Item1;
@@ -813,14 +833,14 @@
         items: data.gold_items || []
       };
 
-      renderCustomerDashboard(user);
+      await renderCustomerDashboard(user);
     }
 
     function calculateTotalInterest(items) {
       return items.reduce((sum, item) => sum + Math.round(item.amount * (item.rate / 100)), 0);
     }
 
-    function renderCustomerDashboard(user) {
+    async function renderCustomerDashboard(user) {
       const totalPrincipal = user.items.reduce((sum, item) => sum + Number(item.amount), 0);
       const interestAmount = calculateTotalInterest(user.items);
       const nextDue = getNextDueDate(user.loanDate);
@@ -840,6 +860,40 @@
       `).join('');
 
       document.getElementById('cust-next-due-date').innerText = formatDate(nextDue);
+
+      // 납부 내역 및 총 이자 계산
+      const t = i18n[currentLang];
+      const historyContainer = document.getElementById('cust-payment-history-list');
+
+      const { data: logs, error } = await supabaseClient
+        .from('payment_logs')
+        .select('*')
+        .eq('customer_id', user.id)
+        .order('payment_date', { ascending: false });
+
+      if (error) {
+        console.error("Customer payment history fetch error:", error);
+        historyContainer.innerHTML = `<p class="text-xs text-rose-400 text-center py-2">내역 조회 실패</p>`;
+      } else if (!logs || logs.length === 0) {
+        document.getElementById('cust-total-paid-interest').innerText = "0 원";
+        historyContainer.innerHTML = `<p class="text-xs text-slate-500 text-center py-2">${t.lblNoPaymentHistory}</p>`;
+      } else {
+        const totalPaid = logs.reduce((sum, log) => sum + Number(log.amount), 0);
+        document.getElementById('cust-total-paid-interest').innerText = `${formatCurrency(totalPaid)} 원`;
+
+        historyContainer.innerHTML = logs.map(log => {
+          const payDate = new Date(log.payment_date).toLocaleDateString();
+          return `
+            <div class="flex justify-between items-center bg-slate-900/80 p-2.5 rounded-lg border border-slate-800">
+              <div>
+                <span class="font-bold text-emerald-400">${formatCurrency(log.amount)} 원</span>
+                <span class="text-slate-400 text-[11px] ml-2">${payDate} ${log.note ? `(${log.note})` : ''}</span>
+              </div>
+              <span class="text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">완료</span>
+            </div>
+          `;
+        }).join('');
+      }
 
       document.getElementById('section-login').classList.add('hidden');
       document.getElementById('section-customer-dashboard').classList.remove('hidden');
