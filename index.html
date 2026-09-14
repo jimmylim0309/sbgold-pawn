@@ -327,6 +327,55 @@
     </div>
   </div>
 
+  <!-- 입금 확인 및 납부 이력 관리 모달 (신규 추가) -->
+  <div id="modal-payment" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden">
+    <div class="gold-card w-full max-w-lg p-6 rounded-2xl shadow-2xl space-y-5 border border-amber-500/40 max-h-[90vh] overflow-y-auto">
+      <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+        <div>
+          <h3 class="text-lg font-bold text-amber-400" id="modal-payment-title">이자 입금 및 납부 이력 관리</h3>
+          <p class="text-xs text-slate-400 mt-0.5" id="modal-payment-cust-name">-</p>
+        </div>
+        <button onclick="closePaymentModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+
+      <!-- 신규 입금 등록 폼 -->
+      <form onsubmit="handleSavePayment(event)" class="space-y-3 bg-slate-900/80 p-4 rounded-xl border border-slate-800">
+        <h4 class="text-xs font-bold text-amber-400 uppercase tracking-wider" id="lbl-pay-form-title">신규 입금 등록</h4>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs text-slate-400 mb-1" id="lbl-pay-amount">입금 금액 (원)</label>
+            <input type="number" id="pay-input-amount" required class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-sm text-white font-bold">
+          </div>
+          <div>
+            <label class="block text-xs text-slate-400 mb-1" id="lbl-pay-note">비고 / 메모</label>
+            <input type="text" id="pay-input-note" placeholder="예: 3월 이자 입금" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-sm">
+          </div>
+        </div>
+        <div class="flex items-center pt-1">
+          <label class="flex items-center space-x-2 text-xs text-slate-300 cursor-pointer">
+            <input type="checkbox" id="pay-extend-date" checked class="rounded border-slate-700 text-amber-500 focus:ring-amber-500 bg-slate-950">
+            <span id="lbl-pay-extend-check">입금 저장 시 대출 만기일을 1달 자동 연장</span>
+          </label>
+        </div>
+        <button type="submit" class="w-full gold-btn py-2.5 rounded-lg text-sm font-bold mt-2">
+          <i class="fa-solid fa-check mr-1"></i> <span id="btn-save-payment">입금 저장 및 확인 완료</span>
+        </button>
+      </form>
+
+      <!-- 과거 납부 내역 리스트 -->
+      <div class="space-y-3">
+        <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider" id="lbl-history-title">과거 납부 기록 목록</h4>
+        <div id="payment-history-list" class="space-y-2 max-h-52 overflow-y-auto pr-1">
+          <p class="text-xs text-slate-500 text-center py-4" id="lbl-history-loading">내역을 불러오는 중...</p>
+        </div>
+      </div>
+
+      <div class="pt-2 border-t border-slate-800">
+        <button type="button" onclick="closePaymentModal()" class="w-full py-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-xs font-semibold text-slate-300" id="btn-close-payment">닫기</button>
+      </div>
+    </div>
+  </div>
+
   <footer class="border-t border-slate-800 bg-slate-900 py-4 text-center text-xs text-slate-500">
     <p>© 2026 HANGTHONG SOMBOON. All rights reserved.</p>
   </footer>
@@ -341,6 +390,7 @@
 
     let customers = [];
     let currentLang = 'ko';
+    let currentActiveCustId = null;
 
     const i18n = {
       ko: {
@@ -417,7 +467,18 @@
         phType: "종류 (예: 목걸이)",
         phWeight: "무게 (예: 10g)",
         phAmount: "대출 원금",
-        phRate: "월 이자율 (%)"
+        phRate: "월 이자율 (%)",
+
+        modalPaymentTitle: "이자 입금 및 납부 이력 관리",
+        lblPayFormTitle: "신규 입금 등록",
+        lblPayAmount: "입금 금액 (원)",
+        lblPayNote: "비고 / 메모",
+        lblPayExtendCheck: "입금 저장 시 대출 만기일을 1달 자동 연장",
+        btnSavePayment: "입금 저장 및 확인 완료",
+        lblHistoryTitle: "과거 납부 기록 목록",
+        lblHistoryLoading: "내역을 불러오는 중...",
+        lblNoHistory: "기록된 납부 내역이 없습니다.",
+        btnClosePayment: "닫기"
       },
       th: {
         headerTitle: "ห้างทองสมบูรณ์ (HANGTHONG SOMBOON)",
@@ -493,7 +554,18 @@
         phType: "ประเภท (เช่น สร้อยคอ)",
         phWeight: "น้ำหนัก (เช่น 10 กรัม)",
         phAmount: "เงินต้นกู้",
-        phRate: "อัตราดอกเบี้ยต่อเดือน (%)"
+        phRate: "อัตราดอกเบี้ยต่อเดือน (%)",
+
+        modalPaymentTitle: "จัดการการชำระดอกเบี้ยและประวัติ",
+        lblPayFormTitle: "บันทึกการชำระเงินใหม่",
+        lblPayAmount: "จำนวนเงินที่ชำระ (วอน)",
+        lblPayNote: "หมายเหตุ",
+        lblPayExtendCheck: "ขยายวันครบกำหนดออกไป 1 เดือนอัตโนมัติเมื่อบันทึก",
+        btnSavePayment: "บันทึกและยืนยันการชำระเงิน",
+        lblHistoryTitle: "ประวัติการชำระเงินที่ผ่านมา",
+        lblHistoryLoading: "กำลังโหลดข้อมูล...",
+        lblNoHistory: "ไม่มีประวัติการชำระเงิน",
+        btnClosePayment: "ปิด"
       }
     };
 
@@ -574,6 +646,15 @@
       document.getElementById('lbl-auto-calc-interest').innerText = t.lblAutoCalcInterest;
       document.getElementById('btn-cancel-edit').innerText = t.btnCancelEdit;
       document.getElementById('btn-save-edit').innerText = t.btnSaveEdit;
+
+      document.getElementById('modal-payment-title').innerText = t.modalPaymentTitle;
+      document.getElementById('lbl-pay-form-title').innerText = t.lblPayFormTitle;
+      document.getElementById('lbl-pay-amount').innerText = t.lblPayAmount;
+      document.getElementById('lbl-pay-note').innerText = t.lblPayNote;
+      document.getElementById('lbl-pay-extend-check').innerText = t.lblPayExtendCheck;
+      document.getElementById('btn-save-payment').innerText = t.btnSavePayment;
+      document.getElementById('lbl-history-title').innerText = t.lblHistoryTitle;
+      document.getElementById('btn-close-payment').innerText = t.btnClosePayment;
 
       if (!document.getElementById('section-admin-dashboard').classList.contains('hidden')) {
         renderAdminDashboard();
@@ -817,7 +898,7 @@
           <td class="py-3 px-4 text-right font-bold text-amber-400 align-top">${formatCurrency(interest)} 원</td>
           <td class="py-3 px-4 text-center align-top">
             <div class="flex flex-col space-y-1">
-              <button onclick="confirmPayment(${c.id}, ${interest})" class="px-2 py-1 bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 hover:bg-emerald-500/40 rounded text-xs font-bold">
+              <button onclick="openPaymentModal(${c.id})" class="px-2 py-1 bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 hover:bg-emerald-500/40 rounded text-xs font-bold">
                 <i class="fa-solid fa-check mr-1"></i>${t.btnPayCheck}
               </button>
               <div class="flex justify-center space-x-1">
@@ -844,47 +925,133 @@
       }
     }
 
-    // 입금 확인 및 납부일 자동 연장 함수
-    async function confirmPayment(custId, interestAmount) {
+    // ==========================================
+    // 입금 관리 및 과거 납부 이력 모달 관련 함수
+    // ==========================================
+
+    async function openPaymentModal(custId) {
+      currentActiveCustId = custId;
       const customer = customers.find(c => c.id === custId);
       if (!customer) return;
 
-      const confirmMsg = currentLang === 'ko'
-        ? `'${customer.name}' 고객의 이자 입금(${formatCurrency(interestAmount)} 원)을 확인 처리하시겠습니까?\n다음 납부 예정일이 1달 뒤로 자동 연장됩니다.`
-        : `คุณต้องการยืนยันการชำระดอกเบี้ย (${formatCurrency(interestAmount)} วอน) ของ '${customer.name}' ใช่หรือไม่?\nวันกำหนดชำระจะถูกขยายออกไป 1 เดือนโดยอัตโนมัติ`;
+      const interestAmount = calculateTotalInterest(customer.items);
 
-      if (!confirm(confirmMsg)) return;
+      // 모달 필드 채우기
+      document.getElementById('modal-payment-cust-name').innerText = `${customer.name} (${customer.phone})`;
+      document.getElementById('pay-input-amount').value = interestAmount;
+      document.getElementById('pay-input-note').value = `${new Date().getMonth() + 1}월 이자 입금`;
+      document.getElementById('pay-extend-date').checked = true;
 
-      // 1. payment_logs에 이력 저장
-      const { error: logError } = await supabaseClient
+      document.getElementById('modal-payment').classList.remove('hidden');
+
+      // 과거 납부 기록 불러오기
+      await loadPaymentHistory(custId);
+    }
+
+    function closePaymentModal() {
+      document.getElementById('modal-payment').classList.add('hidden');
+      currentActiveCustId = null;
+    }
+
+    async function loadPaymentHistory(custId) {
+      const historyContainer = document.getElementById('payment-history-list');
+      const t = i18n[currentLang];
+      historyContainer.innerHTML = `<p class="text-xs text-slate-500 text-center py-4">${t.lblHistoryLoading}</p>`;
+
+      const { data, error } = await supabaseClient
         .from('payment_logs')
-        .insert([{
-          customer_id: custId,
-          amount: interestAmount,
-          note: '관리자 이자 입금 확인 완료'
-        }]);
+        .select('*')
+        .eq('customer_id', custId)
+        .order('payment_date', { ascending: false });
 
-      if (logError) {
-        console.warn("Log error (기록용 테이블 확인 필요):", logError.message);
-      }
-
-      // 2. 대출 날짜를 1개월 뒤로 업데이트하여 다음 납부일 자동 갱신
-      const currDate = new Date(customer.loanDate);
-      currDate.setMonth(currDate.getMonth() + 1);
-      const newLoanDate = formatDate(currDate);
-
-      const { error: updateError } = await supabaseClient
-        .from('customers')
-        .update({ loan_date: newLoanDate })
-        .eq('id', custId);
-
-      if (updateError) {
-        alert("입금 처리 실패: " + updateError.message);
+      if (error) {
+        console.error("Payment history fetch error:", error);
+        historyContainer.innerHTML = `<p class="text-xs text-rose-400 text-center py-4">조회 에러: ${error.message}</p>`;
         return;
       }
 
-      alert(currentLang === 'ko' ? "입금 확인 처리 및 다음 납부일 연장이 완료되었습니다." : "ยืนยันการชำระเงินและขยายวันกำหนดชำระเรียบร้อยแล้ว");
+      if (!data || data.length === 0) {
+        historyContainer.innerHTML = `<p class="text-xs text-slate-500 text-center py-4">${t.lblNoHistory}</p>`;
+        return;
+      }
+
+      historyContainer.innerHTML = data.map(log => {
+        const payDate = new Date(log.payment_date).toLocaleDateString();
+        return `
+          <div class="flex justify-between items-center bg-slate-900 p-3 rounded-lg border border-slate-800 text-xs">
+            <div>
+              <div class="font-bold text-emerald-400">${formatCurrency(log.amount)} 원</div>
+              <div class="text-slate-400 text-[11px] mt-0.5">${payDate} ${log.note ? `| ${log.note}` : ''}</div>
+            </div>
+            <button onclick="deletePaymentLog(${log.id})" class="px-2 py-1 bg-rose-500/10 text-rose-400 border border-rose-500/30 hover:bg-rose-500/30 rounded text-[10px]">
+              <i class="fa-solid fa-trash mr-1"></i>삭제
+            </button>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function handleSavePayment(e) {
+      e.preventDefault();
+      if (!currentActiveCustId) return;
+
+      const customer = customers.find(c => c.id === currentActiveCustId);
+      const amount = Number(document.getElementById('pay-input-amount').value);
+      const note = document.getElementById('pay-input-note').value.trim();
+      const shouldExtend = document.getElementById('pay-extend-date').checked;
+
+      // 1. payment_logs 테이블에 입력 내역 추가
+      const { error: logError } = await supabaseClient
+        .from('payment_logs')
+        .insert([{
+          customer_id: currentActiveCustId,
+          amount: amount,
+          note: note || '이자 입금'
+        }]);
+
+      if (logError) {
+        alert("입금 기록 저장 실패: " + logError.message);
+        return;
+      }
+
+      // 2. 만기일 1달 연장 옵션 체크 시 loan_date 업데이트
+      if (shouldExtend && customer) {
+        const currDate = new Date(customer.loanDate);
+        currDate.setMonth(currDate.getMonth() + 1);
+        const newLoanDate = formatDate(currDate);
+
+        const { error: updateError } = await supabaseClient
+          .from('customers')
+          .update({ loan_date: newLoanDate })
+          .eq('id', currentActiveCustId);
+
+        if (updateError) {
+          alert("만기일 연장 실패: " + updateError.message);
+        }
+      }
+
+      alert(currentLang === 'ko' ? "입금 내역이 성공적으로 저장되었습니다." : "บันทึกการชำระเงินเรียบร้อยแล้ว");
+      
+      // 모달 내 과거 목록 및 대시보드 갱신
+      await loadPaymentHistory(currentActiveCustId);
       renderAdminDashboard();
+    }
+
+    async function deletePaymentLog(logId) {
+      const confirmMsg = currentLang === 'ko' ? "해당 납부 기록을 삭제하시겠습니까?" : "คุณต้องการลบรายการชำระเงินนี้ใช่หรือไม่?";
+      if (!confirm(confirmMsg)) return;
+
+      const { error } = await supabaseClient
+        .from('payment_logs')
+        .delete()
+        .eq('id', logId);
+
+      if (error) {
+        alert("삭제 실패: " + error.message);
+        return;
+      }
+
+      await loadPaymentHistory(currentActiveCustId);
     }
 
     async function handleAddCustomer(e) {
