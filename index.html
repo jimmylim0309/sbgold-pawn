@@ -336,7 +336,7 @@
     return items;
   }
 
-  // 2. 신규 대출 및 고객 추가 (수정된 함수)
+  // 2. 두 번째 첨부 코드가 반영된 고객 및 대출 등록 함수
   async function handleAddCustomer(e) {
     e.preventDefault();
     const name = document.getElementById('add-name').value.trim();
@@ -350,7 +350,7 @@
       return;
     }
 
-    // 1) 고객 존재 여부 확인
+    // 1. 고객 존재 여부 확인
     let { data: existingCust, error: findError } = await supabaseClient
       .from('customers')
       .select('id')
@@ -366,7 +366,7 @@
 
     if (existingCust) {
       customerId = existingCust.id;
-      // 기존 고객 정보 갱신
+      // 기존 고객 정보(이름, 비밀번호, 대출일자) 갱신
       const { error: updateError } = await supabaseClient
         .from('customers')
         .update({ name, pw, loan_date })
@@ -391,7 +391,7 @@
       customerId = custData.id;
     }
 
-    // 2) 담보 물품 등록 (customer_id 직접 연동)
+    // 2. 담보 물품 등록 (customer_id 직접 연동)
     const goldPayload = items.map(item => ({
       customer_id: customerId,
       item_type: item.item_type,
@@ -468,7 +468,6 @@
   async function handleDeleteCustomer(id) {
     if (!confirm(currentLang === 'ko' ? "정말 삭제하시겠습니까?" : "คุณแน่ใจหรือไม่ที่จะลบ?")) return;
 
-    // gold_items도 함께 삭제 설정이 되어있지 않을 경우를 대비해 먼저 삭제
     await supabaseClient.from('gold_items').delete().eq('customer_id', id);
     const { error } = await supabaseClient.from('customers').delete().eq('id', id);
 
