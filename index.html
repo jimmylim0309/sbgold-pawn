@@ -390,6 +390,9 @@
     let customers = [];
     let currentLang = 'ko';
     let currentActiveCustId = null;
+    let currentActiveDueDate = null;
+    let currentEditCustId = null;
+    let currentEditDueDate = null;
 
     const i18n = {
       ko: {
@@ -446,7 +449,6 @@
         btnAddCust: "고객 등록 및 대출 정보 추가",
         titleDailySchedule: "일자별 이자 수금 및 고객 관리",
         
-        // 테이블 헤더 용어 정의
         thName: "고객명",
         thPhone: "전화번호",
         thItemType: "담보 종류",
@@ -925,7 +927,7 @@
       }
     }
 
-    // 관리자 대시보드 테이블 렌더링 (각 열 분리 적용)
+    // 관리자 대시보드 테이블 렌더링 (고객정보 + 이자납기일 기준 그룹화 적용)
     async function renderAdminDashboard() {
       document.getElementById('section-login').classList.add('hidden');
       document.getElementById('section-admin-dashboard').classList.remove('hidden');
@@ -963,9 +965,23 @@
         totalPrincipal += custPrincipal;
         totalInterest += interest;
 
-        const itemCount = c.items.length;
+        // 고객의 아이템을 이자납기일별로 그룹화
+        const dueGroupsMap = {};
+        c.items.forEach(item => {
+          const dueDate = formatDate(getNextDueDate(item.loan_date || item.loanDate));
+          if (!dueGroupsMap[dueDate]) {
+            dueGroupsMap[dueDate] = [];
+          }
+          dueGroupsMap[dueDate].push(item);
+        });
+        const dueGroups = Object.keys(dueGroupsMap).map(dueDate => ({
+          dueDate,
+          items: dueGroupsMap[dueDate]
+        }));
 
-        if (itemCount === 0) {
+        const totalCustomerItems = c.items.length;
+
+        if (totalCustomerItems === 0) {
           const row = document.createElement('tr');
           row.className = "hover:bg-slate-900/50 border-b border-slate-800";
           row.innerHTML = `
@@ -978,71 +994,78 @@
             <td class="py-3 px-3 text-slate-500 align-middle">-</td>
             <td class="py-3 px-3 text-slate-500 align-middle">-</td>
             <td class="py-3 px-3 text-center align-middle">
-              <button onclick="openPaymentModal(${c.id})" class="px-2.5 py-1 bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 hover:bg-emerald-500/40 rounded text-xs font-bold whitespace-nowrap">
+              <button onclick="openPaymentModal(${c.id}, '')" class="px-2.5 py-1 bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 hover:bg-emerald-500/40 rounded text-xs font-bold whitespace-nowrap">
                 <i class="fa-solid fa-check mr-1"></i>${t.btnPayCheck}
               </button>
             </td>
             <td class="py-3 px-3 text-center align-middle">
-              <button onclick="openEditModal(${c.id})" class="px-2 py-1 bg-amber-500/20 text-amber-400 border border-amber-500/40 hover:bg-amber-500/40 rounded text-xs whitespace-nowrap">
+              <button onclick="openEditModal(${c.id}, '')" class="px-2 py-1 bg-amber-500/20 text-amber-400 border border-amber-500/40 hover:bg-amber-500/40 rounded text-xs whitespace-nowrap">
                 <i class="fa-solid fa-pen-to-square mr-1"></i>${t.btnEdit}
               </button>
             </td>
             <td class="py-3 px-3 text-center align-middle">
-              <button onclick="deleteCustomer(${c.id})" class="px-2 py-1 bg-rose-500/20 text-rose-400 border border-rose-500/40 hover:bg-rose-500/40 rounded text-xs whitespace-nowrap">
+              <button onclick="deleteCustomerDueDateGroup(${c.id}, '')" class="px-2 py-1 bg-rose-500/20 text-rose-400 border border-rose-500/40 hover:bg-rose-500/40 rounded text-xs whitespace-nowrap">
                 <i class="fa-solid fa-trash mr-1"></i>${t.btnDelete}
               </button>
             </td>
           `;
           tbody.appendChild(row);
         } else {
-          c.items.forEach((item, idx) => {
-            const itemLoanDate = item.loan_date || item.loanDate || '-';
-            const itemNextDue = getNextDueDate(item.loan_date || item.loanDate);
-            const itemInterest = Math.round(Number(item.amount) * (Number(item.rate) / 100));
+          let globalItemIdx = 0;
+          dueGroups.forEach(group => {
+            const groupItemCount = group.items.length;
+            group.items.forEach((item, itemIdx) => {
+              const itemLoanDate = item.loan_date || item.loanDate || '-';
+              const itemNextDue = group.dueDate;
+              const itemInterest = Math.round(Number(item.amount) * (Number(item.rate) / 100));
 
-            const row = document.createElement('tr');
-            row.className = "hover:bg-slate-900/50 border-b border-slate-800";
+              const row = document.createElement('tr');
+              row.className = "hover:bg-slate-900/50 border-b border-slate-800";
 
-            let html = '';
+              let html = '';
 
-            if (idx === 0) {
+              // 고객 이름 및 전화번호는 전체 고객 행에 대해 rowspan 적용
+              if (globalItemIdx === 0) {
+                html += `
+                  <td rowspan="${totalCustomerItems}" class="py-3 px-3 font-semibold text-amber-400 align-middle border-r border-slate-800/40">${c.name}</td>
+                  <td rowspan="${totalCustomerItems}" class="py-3 px-3 align-middle text-slate-300 border-r border-slate-800/40">${c.phone}</td>
+                `;
+              }
+
               html += `
-                <td rowspan="${itemCount}" class="py-3 px-3 font-semibold text-amber-400 align-middle border-r border-slate-800/40">${c.name}</td>
-                <td rowspan="${itemCount}" class="py-3 px-3 align-middle text-slate-300 border-r border-slate-800/40">${c.phone}</td>
+                <td class="py-3 px-3 font-medium text-slate-200 align-middle">${item.item_type || item.type}</td>
+                <td class="py-3 px-3 text-slate-300 align-middle">${item.weight}</td>
+                <td class="py-3 px-3 font-semibold text-slate-200 align-middle">${formatCurrency(item.amount)} 원 <span class="text-xs text-amber-400 font-normal">(${item.rate}%)</span></td>
+                <td class="py-3 px-3 font-semibold text-amber-400 align-middle">${formatCurrency(itemInterest)} 원</td>
+                <td class="py-3 px-3 text-slate-300 align-middle">${itemLoanDate}</td>
+                <td class="py-3 px-3 font-bold text-emerald-400 align-middle">${itemNextDue}</td>
               `;
-            }
 
-            html += `
-              <td class="py-3 px-3 font-medium text-slate-200 align-middle">${item.item_type || item.type}</td>
-              <td class="py-3 px-3 text-slate-300 align-middle">${item.weight}</td>
-              <td class="py-3 px-3 font-semibold text-slate-200 align-middle">${formatCurrency(item.amount)} 원 <span class="text-xs text-amber-400 font-normal">(${item.rate}%)</span></td>
-              <td class="py-3 px-3 font-semibold text-amber-400 align-middle">${formatCurrency(itemInterest)} 원</td>
-              <td class="py-3 px-3 text-slate-300 align-middle">${itemLoanDate}</td>
-              <td class="py-3 px-3 font-bold text-emerald-400 align-middle">${formatDate(itemNextDue)}</td>
-            `;
+              // 입금 확인, 수정, 삭제 버튼은 동일한 이자납기일 그룹별로 rowspan 적용
+              if (itemIdx === 0) {
+                html += `
+                  <td rowspan="${groupItemCount}" class="py-3 px-3 text-center align-middle border-l border-slate-800/40">
+                    <button onclick="openPaymentModal(${c.id}, '${group.dueDate}')" class="px-2.5 py-1.5 bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 hover:bg-emerald-500/40 rounded text-xs font-bold whitespace-nowrap">
+                      <i class="fa-solid fa-check mr-1"></i>${t.btnPayCheck}
+                    </button>
+                  </td>
+                  <td rowspan="${groupItemCount}" class="py-3 px-3 text-center align-middle border-l border-slate-800/40">
+                    <button onclick="openEditModal(${c.id}, '${group.dueDate}')" class="px-2 py-1.5 bg-amber-500/20 text-amber-400 border border-amber-500/40 hover:bg-amber-500/40 rounded text-xs font-semibold whitespace-nowrap">
+                      <i class="fa-solid fa-pen-to-square mr-1"></i>${t.btnEdit}
+                    </button>
+                  </td>
+                  <td rowspan="${groupItemCount}" class="py-3 px-3 text-center align-middle border-l border-slate-800/40">
+                    <button onclick="deleteCustomerDueDateGroup(${c.id}, '${group.dueDate}')" class="px-2 py-1.5 bg-rose-500/20 text-rose-400 border border-rose-500/40 hover:bg-rose-500/40 rounded text-xs font-semibold whitespace-nowrap">
+                      <i class="fa-solid fa-trash mr-1"></i>${t.btnDelete}
+                    </button>
+                  </td>
+                `;
+              }
 
-            if (idx === 0) {
-              html += `
-                <td rowspan="${itemCount}" class="py-3 px-3 text-center align-middle border-l border-slate-800/40">
-                  <button onclick="openPaymentModal(${c.id})" class="px-2.5 py-1.5 bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 hover:bg-emerald-500/40 rounded text-xs font-bold whitespace-nowrap">
-                    <i class="fa-solid fa-check mr-1"></i>${t.btnPayCheck}
-                  </button>
-                </td>
-                <td rowspan="${itemCount}" class="py-3 px-3 text-center align-middle border-l border-slate-800/40">
-                  <button onclick="openEditModal(${c.id})" class="px-2 py-1.5 bg-amber-500/20 text-amber-400 border border-amber-500/40 hover:bg-amber-500/40 rounded text-xs font-semibold whitespace-nowrap">
-                    <i class="fa-solid fa-pen-to-square mr-1"></i>${t.btnEdit}
-                  </button>
-                </td>
-                <td rowspan="${itemCount}" class="py-3 px-3 text-center align-middle border-l border-slate-800/40">
-                  <button onclick="deleteCustomer(${c.id})" class="px-2 py-1.5 bg-rose-500/20 text-rose-400 border border-rose-500/40 hover:bg-rose-500/40 rounded text-xs font-semibold whitespace-nowrap">
-                    <i class="fa-solid fa-trash mr-1"></i>${t.btnDelete}
-                  </button>
-                </td>
-              `;
-            }
-
-            row.innerHTML = html;
-            tbody.appendChild(row);
+              row.innerHTML = html;
+              tbody.appendChild(row);
+              globalItemIdx++;
+            });
           });
         }
       });
@@ -1058,19 +1081,24 @@
     }
 
     // ==========================================
-    // 입금 관리 및 과거 납부 이력 모달 함수
+    // 입금 관리 및 과거 납부 이력 모달 함수 (납기일 기준)
     // ==========================================
 
-    async function openPaymentModal(custId) {
+    async function openPaymentModal(custId, dueDate) {
       currentActiveCustId = custId;
+      currentActiveDueDate = dueDate;
       const customer = customers.find(c => c.id === custId);
       if (!customer) return;
 
-      const interestAmount = calculateTotalInterest(customer.items);
+      const groupItems = dueDate 
+        ? customer.items.filter(item => formatDate(getNextDueDate(item.loan_date || item.loanDate)) === dueDate)
+        : customer.items;
 
-      document.getElementById('modal-payment-cust-name').innerText = `${customer.name} (${customer.phone})`;
+      const interestAmount = calculateTotalInterest(groupItems);
+
+      document.getElementById('modal-payment-cust-name').innerText = `${customer.name} (${customer.phone})${dueDate ? ` - 납기일: ${dueDate}` : ''}`;
       document.getElementById('pay-input-amount').value = interestAmount;
-      document.getElementById('pay-input-note').value = `${new Date().getMonth() + 1}월 이자 입금`;
+      document.getElementById('pay-input-note').value = `${new Date().getMonth() + 1}월 이자 입금${dueDate ? ` (납기일: ${dueDate})` : ''}`;
 
       document.getElementById('modal-payment').classList.remove('hidden');
 
@@ -1080,6 +1108,7 @@
     function closePaymentModal() {
       document.getElementById('modal-payment').classList.add('hidden');
       currentActiveCustId = null;
+      currentActiveDueDate = null;
     }
 
     async function loadPaymentHistory(custId) {
@@ -1164,7 +1193,7 @@
     }
 
     // ==========================================
-    // 대출 등록 및 수정 로직
+    // 대출 등록 및 수정 로직 (납기일 기준 개별 수정/삭제)
     // ==========================================
     async function handleAddCustomer(e) {
       e.preventDefault();
@@ -1242,9 +1271,12 @@
       renderAdminDashboard();
     }
 
-    function openEditModal(custId) {
+    function openEditModal(custId, dueDate) {
       const customer = customers.find(c => c.id === custId);
       if (!customer) return;
+
+      currentEditCustId = customer.id;
+      currentEditDueDate = dueDate;
 
       document.getElementById('edit-id').value = customer.id;
       document.getElementById('edit-name').value = customer.name;
@@ -1254,7 +1286,11 @@
       const editContainer = document.getElementById('edit-gold-container');
       editContainer.innerHTML = "";
 
-      customer.items.forEach(item => {
+      const groupItems = dueDate
+        ? customer.items.filter(item => formatDate(getNextDueDate(item.loan_date || item.loanDate)) === dueDate)
+        : customer.items;
+
+      groupItems.forEach(item => {
         addGoldInputRow('edit-gold-container', item);
       });
 
@@ -1272,6 +1308,8 @@
 
     function closeEditModal() {
       document.getElementById('modal-edit-customer').classList.add('hidden');
+      currentEditCustId = null;
+      currentEditDueDate = null;
     }
 
     async function handleUpdateCustomer(e) {
@@ -1298,15 +1336,26 @@
         return;
       }
 
-      await supabaseClient.from('gold_items').delete().eq('customer_id', id);
+      const customer = customers.find(c => c.id === id);
+      if (customer && currentEditDueDate) {
+        const targetItems = customer.items.filter(item => formatDate(getNextDueDate(item.loan_date || item.loanDate)) === currentEditDueDate);
+        const targetIds = targetItems.map(i => i.id).filter(Boolean);
+        if (targetIds.length > 0) {
+          await supabaseClient.from('gold_items').delete().in('id', targetIds);
+        } else {
+          await supabaseClient.from('gold_items').delete().eq('customer_id', id);
+        }
+      } else {
+        await supabaseClient.from('gold_items').delete().eq('customer_id', id);
+      }
 
       const goldPayload = items.map(item => ({
         customer_id: id,
-        item_type: item.item_type,
+        item_type: item.item_type || item.type,
         weight: item.weight,
         amount: item.amount,
         rate: item.rate,
-        loan_date: item.loan_date
+        loan_date: item.loan_date || item.loanDate
       }));
 
       const { error: goldError } = await supabaseClient
@@ -1320,32 +1369,42 @@
 
       closeEditModal();
       renderAdminDashboard();
-      alert(currentLang === 'ko' ? "고객 정보가 수정되었습니다." : "แก้ไขข้อมูลลูกค้าเรียบร้อยแล้ว");
+      alert(currentLang === 'ko' ? "정보가 수정되었습니다." : "แก้ไขข้อมูลเรียบร้อยแล้ว");
     }
 
-    async function deleteCustomer(custId) {
+    async function deleteCustomerDueDateGroup(custId, dueDate) {
       const customer = customers.find(c => c.id === custId);
       if (!customer) return;
 
+      const groupItems = dueDate
+        ? customer.items.filter(item => formatDate(getNextDueDate(item.loan_date || item.loanDate)) === dueDate)
+        : customer.items;
+
       const confirmMsg = currentLang === 'ko' 
-        ? `'${customer.name}' 고객의 정보를 정말 삭제하시겠습니까?`
-        : `คุณต้องการลบข้อมูลของ '${customer.name}' ใช่หรือไม่?`;
+        ? `'${customer.name}' 고객의 납기일(${dueDate || '전체'})에 해당하는 담보 물건들을 정말 삭제하시겠습니까?`
+        : `คุณต้องการลบข้อมูลหลักประกันของ '${customer.name}' (วันครบกำหนด: ${dueDate || 'ทั้งหมด'}) ใช่หรือไม่?`;
 
       if (confirm(confirmMsg)) {
-        await supabaseClient.from('gold_items').delete().eq('customer_id', custId);
-        await supabaseClient.from('payment_logs').delete().eq('customer_id', custId);
+        const itemIds = groupItems.map(i => i.id).filter(Boolean);
+        if (itemIds.length > 0) {
+          await supabaseClient.from('gold_items').delete().in('id', itemIds);
+        } else {
+          await supabaseClient.from('gold_items').delete().eq('customer_id', custId);
+        }
 
-        const { error } = await supabaseClient
-          .from('customers')
-          .delete()
-          .eq('id', custId);
+        // 잔여 담보 물건이 없는 경우 고객 및 결제 이력도 함께 정리
+        const { data: remainingItems } = await supabaseClient
+          .from('gold_items')
+          .select('id')
+          .eq('customer_id', custId);
 
-        if (error) {
-          alert("삭제 오류: " + error.message);
-          return;
+        if (!remainingItems || remainingItems.length === 0) {
+          await supabaseClient.from('payment_logs').delete().eq('customer_id', custId);
+          await supabaseClient.from('customers').delete().eq('id', custId);
         }
 
         renderAdminDashboard();
+        alert(currentLang === 'ko' ? "삭제되었습니다." : "ลบเรียบร้อยแล้ว");
       }
     }
 
