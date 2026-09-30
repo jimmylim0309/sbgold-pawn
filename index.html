@@ -116,9 +116,9 @@
           </div>
         </div>
 
-        <!-- 맡긴 금 목록 정보 -->
+        <!-- 맡긴 금 목록 정보 (납부예정일 합산 및 개별 이자 표시) -->
         <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800 space-y-3">
-          <h4 class="text-sm font-bold text-amber-400 border-b border-slate-800 pb-2" id="lbl-cust-gold-items">맡기신 담보 물건 및 개별 납부일 정보</h4>
+          <h4 class="text-sm font-bold text-amber-400 border-b border-slate-800 pb-2" id="lbl-cust-gold-items">맡기신 담보 물건 및 납부예정일별 이자 정보</h4>
           <div id="cust-gold-list" class="space-y-2 text-xs text-slate-300"></div>
         </div>
 
@@ -413,7 +413,7 @@
         lblPrincipal: "총 원금 (빌린 금액)",
         lblMonthlyInterest: "월 총 이자 비용",
         lblTotalPaidInterest: "총 누적 납부 이자",
-        lblCustGoldItems: "맡기신 담보 물건 및 개별 납부일 정보",
+        lblCustGoldItems: "맡기신 담보 물건 및 납부예정일별 이자 정보",
         lblNextDueTitle: "가장 가까운 이자 납부 예정일",
         lblAutoRollInfo: "* 담보 물건별 대출일자에 맞춰 매월 해당 일자에 이자가 납부되어야 합니다.",
         lblAmountDue: "월 합산 납부 이자",
@@ -505,7 +505,7 @@
         lblPrincipal: "เงินต้นรวม (จำนวนเงินที่กู้)",
         lblMonthlyInterest: "ดอกเบี้ยต่อเดือนรวม",
         lblTotalPaidInterest: "ดอกเบี้ยที่ชำระแล้วสะสม",
-        lblCustGoldItems: "ข้อมูลทองคำประกันและวันครบกำหนดชำระแยกรายการ",
+        lblCustGoldItems: "ข้อมูลทองคำประกันและวันครบกำหนดชำระแยกตามรายการ",
         lblNextDueTitle: "วันครบกำหนดชำระดอกเบี้ยที่เร็วที่สุด",
         lblAutoRollInfo: "* วันกำหนดชำระดอกเบี้ยจะคำนวณตามวันที่กู้ยืมของหลักประกันแต่ละรายการ",
         lblAmountDue: "ดอกเบี้ยรวมที่ต้องชำระ",
@@ -859,19 +859,46 @@
       document.getElementById('cust-interest-amount').innerText = `${formatCurrency(interestAmount)} 원`;
       document.getElementById('cust-pay-amount').innerText = `${formatCurrency(interestAmount)} 원`;
 
+      // 납부예정일별 그룹화 및 개별 담보 물품별 납부 이자 표시 적용
+      const dueGroupsMap = {};
+      user.items.forEach(item => {
+        const dueDate = formatDate(getNextDueDate(item.loan_date || item.loanDate));
+        if (!dueGroupsMap[dueDate]) {
+          dueGroupsMap[dueDate] = [];
+        }
+        dueGroupsMap[dueDate].push(item);
+      });
+
       const goldList = document.getElementById('cust-gold-list');
-      goldList.innerHTML = user.items.map((item, idx) => {
-        const itemNextDue = getNextDueDate(item.loan_date || item.loanDate);
-        const itemLoanDate = item.loan_date || item.loanDate || '-';
-        return `
-          <div class="flex flex-col md:flex-row md:justify-between md:items-center p-2 bg-slate-950/60 rounded border border-slate-800 gap-1">
-            <div>
-              <span class="font-bold text-slate-100">${idx + 1}. ${item.item_type || item.type} (${item.weight})</span>
-              <span class="text-xs text-slate-400 ml-2">대출일: ${itemLoanDate}</span>
+      goldList.innerHTML = Object.keys(dueGroupsMap).sort().map(dueDate => {
+        const groupItems = dueGroupsMap[dueDate];
+        const groupTotalInterest = calculateTotalInterest(groupItems);
+
+        const itemsHtml = groupItems.map(item => {
+          const itemLoanDate = item.loan_date || item.loanDate || '-';
+          const itemInterest = Math.round(Number(item.amount) * (Number(item.rate) / 100));
+          return `
+            <div class="flex flex-col md:flex-row md:justify-between md:items-center p-2.5 bg-slate-950/60 rounded border border-slate-800 gap-1 my-1">
+              <div>
+                <span class="font-bold text-slate-100">${item.item_type || item.type} (${item.weight})</span>
+                <span class="text-xs text-slate-400 ml-2">대출일: ${itemLoanDate}</span>
+              </div>
+              <div class="text-left md:text-right">
+                <span class="text-slate-300 text-xs mr-2">원금: ${formatCurrency(item.amount)}원 (${item.rate}%)</span>
+                <span class="font-semibold text-amber-400">개별 이자: ${formatCurrency(itemInterest)} 원</span>
+              </div>
             </div>
-            <div class="text-left md:text-right">
-              <span class="font-semibold text-amber-400">${formatCurrency(item.amount)} 원 (월 ${item.rate}%)</span>
-              <span class="block text-[11px] text-emerald-400">다음 납부일: ${formatDate(itemNextDue)}</span>
+          `;
+        }).join('');
+
+        return `
+          <div class="bg-slate-950/40 p-3 rounded-lg border border-slate-800 mb-3">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-2 mb-2">
+              <span class="text-xs font-bold text-emerald-400"><i class="fa-regular fa-calendar-days mr-1"></i> 납부예정일: ${dueDate}</span>
+              <span class="text-xs font-bold text-amber-400">해당일 납부 합산 이자: ${formatCurrency(groupTotalInterest)} 원</span>
+            </div>
+            <div class="space-y-1">
+              ${itemsHtml}
             </div>
           </div>
         `;
@@ -1024,7 +1051,6 @@
 
               let html = '';
 
-              // 고객 이름 및 전화번호는 전체 고객 행에 대해 rowspan 적용
               if (globalItemIdx === 0) {
                 html += `
                   <td rowspan="${totalCustomerItems}" class="py-3 px-3 font-semibold text-amber-400 align-middle border-r border-slate-800/40">${c.name}</td>
@@ -1041,7 +1067,6 @@
                 <td class="py-3 px-3 font-bold text-emerald-400 align-middle">${itemNextDue}</td>
               `;
 
-              // 입금 확인, 수정, 삭제 버튼은 동일한 이자납기일 그룹별로 rowspan 적용
               if (itemIdx === 0) {
                 html += `
                   <td rowspan="${groupItemCount}" class="py-3 px-3 text-center align-middle border-l border-slate-800/40">
@@ -1392,7 +1417,6 @@
           await supabaseClient.from('gold_items').delete().eq('customer_id', custId);
         }
 
-        // 잔여 담보 물건이 없는 경우 고객 및 결제 이력도 함께 정리
         const { data: remainingItems } = await supabaseClient
           .from('gold_items')
           .select('id')
