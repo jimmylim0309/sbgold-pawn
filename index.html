@@ -1121,19 +1121,50 @@
         return;
       }
 
-      const { data: custData, error: custError } = await supabaseClient
+      // 1. 기존 고객 등록 여부 확인
+      const { data: existingCust, error: findError } = await supabaseClient
         .from('customers')
-        .insert([{ name, phone, pw, loan_date }])
-        .select()
-        .single();
+        .select('id')
+        .eq('phone', phone)
+        .maybeSingle();
 
-      if (custError) {
-        alert("고객 등록 오류: " + custError.message);
+      if (findError) {
+        alert("고객 조회 오류: " + findError.message);
         return;
       }
 
+      let customerId;
+
+      if (existingCust) {
+        // 2-A. 기존 고객 존재 시: ID 재사용 및 고객 정보 업데이트
+        customerId = existingCust.id;
+        const { error: updateError } = await supabaseClient
+          .from('customers')
+          .update({ name, pw, loan_date })
+          .eq('id', customerId);
+
+        if (updateError) {
+          alert("기존 고객 정보 갱신 오류: " + updateError.message);
+          return;
+        }
+      } else {
+        // 2-B. 신규 고객일 시: customers 테이블에 데이터 추가
+        const { data: custData, error: custError } = await supabaseClient
+          .from('customers')
+          .insert([{ name, phone, pw, loan_date }])
+          .select()
+          .single();
+
+        if (custError) {
+          alert("고객 등록 오류: " + custError.message);
+          return;
+        }
+        customerId = custData.id;
+      }
+
+      // 3. 담보 정보 등록 (기존 또는 신규 customer_id 연동)
       const goldPayload = items.map(item => ({
-        customer_id: custData.id,
+        customer_id: customerId,
         item_type: item.item_type,
         weight: item.weight,
         amount: item.amount,
@@ -1149,7 +1180,10 @@
         return;
       }
 
-      alert(currentLang === 'ko' ? "신규 고객이 등록되었습니다." : "บันทึกข้อมูลลูกค้าใหม่เรียบร้อยแล้ว");
+      alert(currentLang === 'ko' 
+        ? (existingCust ? "기존 고객 정보에 신규 담보 대출 내역이 추가되었습니다." : "신규 고객이 등록되었습니다.") 
+        : "บันทึกข้อมูลเรียบร้อยแล้ว");
+
       e.target.reset();
       document.getElementById('add-gold-container').innerHTML = "";
       addGoldInputRow('add-gold-container');
