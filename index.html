@@ -95,8 +95,8 @@
       <div class="gold-card rounded-2xl p-6 shadow-xl space-y-6">
         <div class="flex justify-between items-center border-b border-slate-800 pb-4">
           <div>
-            <span class="text-xs text-slate-400" id="lbl-loan-date">대출 일자</span>
-            <p class="text-lg font-semibold text-slate-200" id="cust-loan-date">-</p>
+            <span class="text-xs text-slate-400">고객 정보</span>
+            <p class="text-lg font-semibold text-slate-200" id="cust-phone-display">-</p>
           </div>
           <span class="px-3 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" id="lbl-status-active">정상 이용중</span>
         </div>
@@ -116,20 +116,20 @@
           </div>
         </div>
 
-        <!-- 맡긴 금 목록 정보 -->
-        <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800 space-y-2">
-          <h4 class="text-sm font-bold text-amber-400" id="lbl-cust-gold-items">맡기신 금 정보</h4>
-          <div id="cust-gold-list" class="space-y-1 text-xs text-slate-300"></div>
+        <!-- 맡긴 금 목록 정보 (물건별 개별 대출일 및 납부예정일 표시) -->
+        <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800 space-y-3">
+          <h4 class="text-sm font-bold text-amber-400 border-b border-slate-800 pb-2" id="lbl-cust-gold-items">맡기신 담보 물건 및 개별 납부일 정보</h4>
+          <div id="cust-gold-list" class="space-y-2 text-xs text-slate-300"></div>
         </div>
 
         <div class="bg-gradient-to-r from-amber-600 to-amber-700 text-slate-950 p-6 rounded-xl shadow-lg flex flex-col md:flex-row justify-between items-center gap-4">
           <div>
-            <span class="text-xs font-bold uppercase tracking-wider text-slate-900" id="lbl-next-due-title">다음 이자 납부 예정일</span>
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-900" id="lbl-next-due-title">가장 가까운 이자 납부 예정일</span>
             <h3 class="text-3xl font-black text-slate-950 mt-1" id="cust-next-due-date">-</h3>
-            <p class="text-xs text-slate-900/80 mt-2" id="lbl-auto-roll-info">* 원금을 상환하지 않는 경우 매월 동일한 일자에 월 이자가 자동으로 이월되어 안내됩니다.</p>
+            <p class="text-xs text-slate-900/80 mt-2" id="lbl-auto-roll-info">* 담보 물건별 대출일자에 맞춰 매월 해당 일자에 이자가 납부되어야 합니다.</p>
           </div>
           <div class="bg-slate-950 text-amber-400 px-6 py-4 rounded-xl w-full md:w-auto text-center border border-amber-500/30">
-            <span class="text-xs text-slate-400 block" id="lbl-amount-due">납부해야 할 이자</span>
+            <span class="text-xs text-slate-400 block" id="lbl-amount-due">월 합산 납부 이자</span>
             <span class="text-2xl font-black" id="cust-pay-amount">-</span>
           </div>
         </div>
@@ -219,9 +219,9 @@
 
       <!-- 신규 고객 등록 -->
       <div class="gold-card p-6 rounded-xl space-y-4">
-        <h3 class="text-lg font-bold text-amber-400 border-b border-slate-800 pb-2" id="title-add-cust">신규 고객 등록</h3>
+        <h3 class="text-lg font-bold text-amber-400 border-b border-slate-800 pb-2" id="title-add-cust">신규 고객 및 대출 등록</h3>
         <form onsubmit="handleAddCustomer(event)" class="space-y-4">
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label class="block text-xs text-slate-400 mb-1" id="lbl-input-name">고객 이름</label>
               <input type="text" id="add-name" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-sm">
@@ -234,16 +234,12 @@
               <label class="block text-xs text-slate-400 mb-1" id="lbl-input-pw">비밀번호</label>
               <input type="password" id="add-pw" required placeholder="1234" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-sm">
             </div>
-            <div>
-              <label class="block text-xs text-slate-400 mb-1" id="lbl-input-date">대출 날짜</label>
-              <input type="date" id="add-date" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-sm text-slate-100">
-            </div>
           </div>
 
-          <!-- 금 정보 입력 dynamic 컨테이너 -->
+          <!-- 금 정보 입력 dynamic 컨테이너 (개별 대출일 포함) -->
           <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800 space-y-3">
             <div class="flex justify-between items-center border-b border-slate-800 pb-2">
-              <span class="text-xs font-bold text-amber-400" id="lbl-gold-items-title">담보 금 정보 설정</span>
+              <span class="text-xs font-bold text-amber-400" id="lbl-gold-items-title">담보 금 정보 설정 (물건별 개별 대출일 입력)</span>
               <button type="button" onclick="addGoldInputRow('add-gold-container')" class="px-2.5 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded font-bold text-xs">
                 <i class="fa-solid fa-plus mr-1"></i> <span id="btn-add-gold-row">추가</span>
               </button>
@@ -268,9 +264,8 @@
               <tr>
                 <th class="py-3 px-4" id="th-name">고객명</th>
                 <th class="py-3 px-4" id="th-phone">전화번호</th>
-                <th class="py-3 px-4" id="th-loan-date">대출일</th>
-                <th class="py-3 px-4" id="th-due-date">다음 납부 예정일</th>
-                <th class="py-3 px-4" id="th-principal">원금 및 금 상세 내역</th>
+                <th class="py-3 px-4" id="th-due-date">가장 빠른 납부 예정일</th>
+                <th class="py-3 px-4" id="th-principal">원금 및 담보별 대출일 상세</th>
                 <th class="py-3 px-4 text-right" id="th-interest">합산 이자</th>
                 <th class="py-3 px-4 text-center" id="th-action">관리</th>
               </tr>
@@ -284,7 +279,7 @@
 
   <!-- 고객 정보 수정 모달 (팝업) -->
   <div id="modal-edit-customer" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden">
-    <div class="gold-card w-full max-w-xl p-6 rounded-2xl shadow-2xl space-y-4 border border-amber-500/40 max-h-[90vh] overflow-y-auto">
+    <div class="gold-card w-full max-w-2xl p-6 rounded-2xl shadow-2xl space-y-4 border border-amber-500/40 max-h-[90vh] overflow-y-auto">
       <div class="flex justify-between items-center border-b border-slate-800 pb-3">
         <h3 class="text-lg font-bold text-amber-400" id="title-edit-modal">고객 정보 수정</h3>
         <button onclick="closeEditModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
@@ -292,7 +287,7 @@
 
       <form onsubmit="handleUpdateCustomer(event)" class="space-y-4">
         <input type="hidden" id="edit-id">
-        <div class="grid grid-cols-2 gap-3">
+        <div class="grid grid-cols-3 gap-3">
           <div>
             <label class="block text-xs text-slate-400 mb-1" id="lbl-edit-name">고객 이름</label>
             <input type="text" id="edit-name" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-sm">
@@ -301,23 +296,16 @@
             <label class="block text-xs text-slate-400 mb-1" id="lbl-edit-phone">전화번호</label>
             <input type="text" id="edit-phone" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-sm">
           </div>
-        </div>
-
-        <div class="grid grid-cols-2 gap-3">
           <div>
             <label class="block text-xs text-slate-400 mb-1" id="lbl-edit-pw">비밀번호</label>
             <input type="password" id="edit-pw" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-sm">
           </div>
-          <div>
-            <label class="block text-xs text-slate-400 mb-1" id="lbl-edit-date">대출 날짜 (납부일 연동)</label>
-            <input type="date" id="edit-date" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-sm text-slate-100">
-          </div>
         </div>
 
-        <!-- 맡긴 금 수정 Dynamic 컨테이너 -->
+        <!-- 맡긴 금 수정 Dynamic 컨테이너 (개별 대출일 포함) -->
         <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800 space-y-3">
           <div class="flex justify-between items-center border-b border-slate-800 pb-2">
-            <span class="text-xs font-bold text-amber-400" id="lbl-edit-gold-items-title">담보 금 정보 수정</span>
+            <span class="text-xs font-bold text-amber-400" id="lbl-edit-gold-items-title">담보 금 정보 수정 (개별 대출일 수정)</span>
             <button type="button" onclick="addGoldInputRow('edit-gold-container')" class="px-2.5 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded font-bold text-xs">
               <i class="fa-solid fa-plus mr-1"></i> <span id="btn-edit-add-gold-row">추가</span>
             </button>
@@ -362,12 +350,6 @@
             <label class="block text-xs text-slate-400 mb-1" id="lbl-pay-note">비고 / 메모</label>
             <input type="text" id="pay-input-note" placeholder="예: 3월 이자 입금" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-sm">
           </div>
-        </div>
-        <div class="flex items-center pt-1">
-          <label class="flex items-center space-x-2 text-xs text-slate-300 cursor-pointer">
-            <input type="checkbox" id="pay-extend-date" checked class="rounded border-slate-700 text-amber-500 focus:ring-amber-500 bg-slate-950">
-            <span id="lbl-pay-extend-check">입금 저장 시 대출 만기일을 1달 자동 연장</span>
-          </label>
         </div>
         <button type="submit" class="w-full gold-btn py-2.5 rounded-lg text-sm font-bold mt-2">
           <i class="fa-solid fa-check mr-1"></i> <span id="btn-save-payment">입금 저장 및 확인 완료</span>
@@ -419,15 +401,14 @@
         btnAdminLogin: "관리자 접속",
         lblWelcome: "반갑습니다,",
         btnLogout: "로그아웃",
-        lblLoanDate: "대출 일자",
         lblStatusActive: "정상 이용중",
         lblPrincipal: "총 원금 (빌린 금액)",
         lblMonthlyInterest: "월 총 이자 비용",
         lblTotalPaidInterest: "총 누적 납부 이자",
-        lblCustGoldItems: "맡기신 금 정보",
-        lblNextDueTitle: "다음 이자 납부 예정일",
-        lblAutoRollInfo: "* 원금을 상환하지 않는 경우 매월 동일한 일자에 월 이자가 자동으로 이월되어 안내됩니다.",
-        lblAmountDue: "납부해야 할 이자",
+        lblCustGoldItems: "맡기신 담보 물건 및 개별 납부일 정보",
+        lblNextDueTitle: "가장 가까운 이자 납부 예정일",
+        lblAutoRollInfo: "* 담보 물건별 대출일자에 맞춰 매월 해당 일자에 이자가 납부되어야 합니다.",
+        lblAmountDue: "월 합산 납부 이자",
         lblCustPaymentHistoryTitle: "이자 납부 이력 내역",
         lblNoPaymentHistory: "기록된 납부 내역이 없습니다.",
         
@@ -451,28 +432,25 @@
         lblTotalCust: "총 대출 고객 수",
         lblTotalPrincipal: "총 빌려준 금액 (원금)",
         lblTotalMonthlyInterest: "월 총 예상 이자 수입",
-        titleAddCust: "신규 고객 등록",
+        titleAddCust: "신규 고객 및 대출 등록",
         lblInputName: "고객 이름",
         lblInputPhone: "전화번호 (아이디)",
         lblInputPw: "비밀번호",
-        lblInputDate: "대출 날짜",
-        lblGoldItemsTitle: "담보 금 정보 설정",
+        lblGoldItemsTitle: "담보 금 정보 설정 (물건별 개별 대출일 입력)",
         btnAddGoldRow: "추가",
         btnAddCust: "고객 등록 및 대출 정보 추가",
         titleDailySchedule: "일자별 이자 수금 및 고객 관리",
         thName: "고객명",
         thPhone: "전화번호",
-        thLoanDate: "대출일",
-        thDueDate: "다음 납부 예정일",
-        thPrincipal: "원금 및 금 상세 내역",
+        thDueDate: "가장 빠른 납부 예정일",
+        thPrincipal: "원금 및 담보별 대출일 상세",
         thInterest: "합산 이자",
         thAction: "관리",
         titleEditModal: "고객 정보 수정",
         lblEditName: "고객 이름",
         lblEditPhone: "전화번호",
         lblEditPw: "비밀번호",
-        lblEditDate: "대출 날짜 (납부일 연동)",
-        lblEditGoldItemsTitle: "담보 금 정보 수정",
+        lblEditGoldItemsTitle: "담보 금 정보 수정 (개별 대출일 수정)",
         lblAutoCalcInterest: "자동 계산된 합산 월 이자:",
         btnCancelEdit: "취소",
         btnSaveEdit: "저장하기",
@@ -488,7 +466,6 @@
         lblPayFormTitle: "신규 입금 등록",
         lblPayAmount: "입금 금액 (원)",
         lblPayNote: "비고 / 메모",
-        lblPayExtendCheck: "입금 저장 시 대출 만기일을 1달 자동 연장",
         btnSavePayment: "입금 저장 및 확인 완료",
         lblHistoryTitle: "과거 납부 기록 목록",
         lblHistoryLoading: "내역을 불러오는 중...",
@@ -509,15 +486,14 @@
         btnAdminLogin: "เข้าสู่ระบบผู้ดูแล",
         lblWelcome: "ยินดีต้อนรับ,",
         btnLogout: "ออกจากระบบ",
-        lblLoanDate: "วันที่กู้ยืม",
         lblStatusActive: "สถานะปกติ",
         lblPrincipal: "เงินต้นรวม (จำนวนเงินที่กู้)",
         lblMonthlyInterest: "ดอกเบี้ยต่อเดือนรวม",
         lblTotalPaidInterest: "ดอกเบี้ยที่ชำระแล้วสะสม",
-        lblCustGoldItems: "ข้อมูลทองคำที่จำนำ",
-        lblNextDueTitle: "วันครบกำหนดชำระดอกเบี้ยถัดไป",
-        lblAutoRollInfo: "* หากยังไม่ชำระเงินต้น วันกำหนดชำระดอกเบี้ยจะถูกต่ออายุโดยอัตโนมัติในวันเดียวกันของเดือนถัดไป",
-        lblAmountDue: "ดอกเบี้ยที่ต้องชำระ",
+        lblCustGoldItems: "ข้อมูลทองคำประกันและวันครบกำหนดชำระแยกรายการ",
+        lblNextDueTitle: "วันครบกำหนดชำระดอกเบี้ยที่เร็วที่สุด",
+        lblAutoRollInfo: "* วันกำหนดชำระดอกเบี้ยจะคำนวณตามวันที่กู้ยืมของหลักประกันแต่ละรายการ",
+        lblAmountDue: "ดอกเบี้ยรวมที่ต้องชำระ",
         lblCustPaymentHistoryTitle: "ประวัติการชำระดอกเบี้ย",
         lblNoPaymentHistory: "ไม่มีประวัติการชำระเงิน",
         
@@ -545,24 +521,21 @@
         lblInputName: "ชื่อลูกค้า",
         lblInputPhone: "เบอร์โทรศัพท์ (ID)",
         lblInputPw: "รหัสผ่าน",
-        lblInputDate: "วันที่กู้ยืม",
-        lblGoldItemsTitle: "ตั้งค่าข้อมูลทองคำประกัน",
+        lblGoldItemsTitle: "ตั้งค่าข้อมูลทองคำประกัน (ระบุวันกู้ยืมแต่ละรายการ)",
         btnAddGoldRow: "เพิ่ม",
         btnAddCust: "บันทึกข้อมูลลูกค้า",
         titleDailySchedule: "ตารางกำหนดชำระดอกเบี้ยและการจัดการลูกค้า",
         thName: "ชื่อลูกค้า",
         thPhone: "เบอร์โทรศัพท์",
-        thLoanDate: "วันที่กู้",
-        thDueDate: "วันกำหนดชำระถัดไป",
-        thPrincipal: "เงินต้นและรายละเอียดทองคำ",
+        thDueDate: "วันกำหนดชำระถัดไปที่เร็วที่สุด",
+        thPrincipal: "เงินต้นและรายละเอียดวันกู้แต่ละรายการ",
         thInterest: "ดอกเบี้ยรวมที่ต้องชำระ",
         thAction: "จัดการ",
         titleEditModal: "แก้ไขข้อมูลลูกค้า",
         lblEditName: "ชื่อลูกค้า",
         lblEditPhone: "เบอร์โทรศัพท์",
         lblEditPw: "รหัสผ่าน",
-        lblEditDate: "วันที่กู้ยืม",
-        lblEditGoldItemsTitle: "แก้ไขข้อมูลทองคำประกัน",
+        lblEditGoldItemsTitle: "แก้ไขข้อมูลทองคำประกัน (แก้ไขวันกู้แต่ละรายการ)",
         lblAutoCalcInterest: "ดอกเบี้ยรวมคำนวณอัตโนมัติ:",
         btnCancelEdit: "ยกเลิก",
         btnSaveEdit: "บันทึก",
@@ -578,7 +551,6 @@
         lblPayFormTitle: "บันทึกการชำระเงินใหม่",
         lblPayAmount: "จำนวนเงินที่ชำระ (วอน)",
         lblPayNote: "หมายเหตุ",
-        lblPayExtendCheck: "ขยายวันครบกำหนดออกไป 1 เดือนอัตโนมัติเมื่อบันทึก",
         btnSavePayment: "บันทึกและยืนยันการชำระเงิน",
         lblHistoryTitle: "ประวัติการชำระเงินที่ผ่านมา",
         lblHistoryLoading: "กำลังโหลดข้อมูล...",
@@ -607,7 +579,6 @@
       document.getElementById('btn-admin-login').innerText = t.btnAdminLogin;
       document.getElementById('lbl-welcome').innerText = t.lblWelcome;
       document.getElementById('btn-logout').innerText = t.btnLogout;
-      document.getElementById('lbl-loan-date').innerText = t.lblLoanDate;
       document.getElementById('lbl-status-active').innerText = t.lblStatusActive;
       document.getElementById('lbl-principal').innerText = t.lblPrincipal;
       document.getElementById('lbl-monthly-interest').innerText = t.lblMonthlyInterest;
@@ -643,14 +614,12 @@
       document.getElementById('lbl-input-name').innerText = t.lblInputName;
       document.getElementById('lbl-input-phone').innerText = t.lblInputPhone;
       document.getElementById('lbl-input-pw').innerText = t.lblInputPw;
-      document.getElementById('lbl-input-date').innerText = t.lblInputDate;
       document.getElementById('lbl-gold-items-title').innerText = t.lblGoldItemsTitle;
       document.getElementById('btn-add-gold-row').innerText = t.btnAddGoldRow;
       document.getElementById('btn-add-cust').innerText = t.btnAddCust;
       document.getElementById('title-daily-schedule').innerText = t.titleDailySchedule;
       document.getElementById('th-name').innerText = t.thName;
       document.getElementById('th-phone').innerText = t.thPhone;
-      document.getElementById('th-loan-date').innerText = t.thLoanDate;
       document.getElementById('th-due-date').innerText = t.thDueDate;
       document.getElementById('th-principal').innerText = t.thPrincipal;
       document.getElementById('th-interest').innerText = t.thInterest;
@@ -660,7 +629,6 @@
       document.getElementById('lbl-edit-name').innerText = t.lblEditName;
       document.getElementById('lbl-edit-phone').innerText = t.lblEditPhone;
       document.getElementById('lbl-edit-pw').innerText = t.lblEditPw;
-      document.getElementById('lbl-edit-date').innerText = t.lblEditDate;
       document.getElementById('lbl-edit-gold-items-title').innerText = t.lblEditGoldItemsTitle;
       document.getElementById('btn-edit-add-gold-row').innerText = t.btnAddGoldRow;
       document.getElementById('lbl-auto-calc-interest').innerText = t.lblAutoCalcInterest;
@@ -671,7 +639,6 @@
       document.getElementById('lbl-pay-form-title').innerText = t.lblPayFormTitle;
       document.getElementById('lbl-pay-amount').innerText = t.lblPayAmount;
       document.getElementById('lbl-pay-note').innerText = t.lblPayNote;
-      document.getElementById('lbl-pay-extend-check').innerText = t.lblPayExtendCheck;
       document.getElementById('btn-save-payment').innerText = t.btnSavePayment;
       document.getElementById('lbl-history-title').innerText = t.lblHistoryTitle;
       document.getElementById('btn-close-payment').innerText = t.btnClosePayment;
@@ -681,15 +648,18 @@
       }
     }
 
-    function addGoldInputRow(containerId, data = { item_type: '', weight: '', amount: '', rate: '' }) {
+    // 2번 적용: 금 입력 행에 개별 loan_date 필드 추가
+    function addGoldInputRow(containerId, data = {}) {
       const container = document.getElementById(containerId);
       const row = document.createElement('div');
       row.className = "gold-item-row grid grid-cols-12 gap-2 items-center";
 
       const t = i18n[currentLang];
+      const todayStr = new Date().toISOString().split('T')[0];
+      const initialDate = data.loan_date || data.loanDate || todayStr;
 
       row.innerHTML = `
-        <div class="col-span-3">
+        <div class="col-span-2">
           <input type="text" placeholder="${t.phType}" value="${data.item_type || data.type || ''}" required class="gold-type w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-xs">
         </div>
         <div class="col-span-2">
@@ -698,8 +668,11 @@
         <div class="col-span-3">
           <input type="number" placeholder="${t.phAmount} (원)" value="${data.amount || ''}" required oninput="calcEditInterest()" class="gold-amount w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-xs">
         </div>
-        <div class="col-span-3">
+        <div class="col-span-2">
           <input type="number" step="0.1" placeholder="${t.phRate}" value="${data.rate || ''}" required oninput="calcEditInterest()" class="gold-rate w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-xs">
+        </div>
+        <div class="col-span-2">
+          <input type="date" value="${initialDate}" required class="gold-date w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-xs text-slate-100">
         </div>
         <div class="col-span-1 text-center">
           <button type="button" onclick="removeGoldInputRow(this)" class="text-rose-400 hover:text-rose-300 p-1"><i class="fa-solid fa-trash text-xs"></i></button>
@@ -730,9 +703,10 @@
         const weight = row.querySelector('.gold-weight').value.trim();
         const amount = parseFloat(row.querySelector('.gold-amount').value) || 0;
         const rate = parseFloat(row.querySelector('.gold-rate').value) || 0;
+        const loan_date = row.querySelector('.gold-date').value;
 
-        if (item_type && weight && amount && rate) {
-          items.push({ item_type, weight, amount, rate });
+        if (item_type && weight && amount && rate && loan_date) {
+          items.push({ item_type, weight, amount, rate, loan_date });
         }
       });
 
@@ -804,7 +778,6 @@
         name: c.name,
         phone: c.phone,
         pw: c.pw,
-        loanDate: c.loan_date,
         items: c.gold_items || []
       }));
     }
@@ -831,7 +804,6 @@
         name: data.name,
         phone: data.phone,
         pw: data.pw,
-        loanDate: data.loan_date,
         items: data.gold_items || []
       };
 
@@ -842,26 +814,45 @@
       return items.reduce((sum, item) => sum + Math.round(item.amount * (item.rate / 100)), 0);
     }
 
+    // 3번 적용: 고객 대시보드 내 개별 loan_date 기준 납부 예정일 표시
     async function renderCustomerDashboard(user) {
       const totalPrincipal = user.items.reduce((sum, item) => sum + Number(item.amount), 0);
       const interestAmount = calculateTotalInterest(user.items);
-      const nextDue = getNextDueDate(user.loanDate);
+
+      // 전체 물건 중 가장 빠른 다음 납부 예정일 찾기
+      let earliestNextDue = null;
+      user.items.forEach(item => {
+        const itemDue = getNextDueDate(item.loan_date || item.loanDate);
+        if (!earliestNextDue || itemDue < earliestNextDue) {
+          earliestNextDue = itemDue;
+        }
+      });
 
       document.getElementById('cust-name-display').innerText = user.name;
-      document.getElementById('cust-loan-date').innerText = user.loanDate || '-';
+      document.getElementById('cust-phone-display').innerText = user.phone;
       document.getElementById('cust-principal').innerText = `${formatCurrency(totalPrincipal)} 원`;
       document.getElementById('cust-interest-amount').innerText = `${formatCurrency(interestAmount)} 원`;
       document.getElementById('cust-pay-amount').innerText = `${formatCurrency(interestAmount)} 원`;
 
       const goldList = document.getElementById('cust-gold-list');
-      goldList.innerHTML = user.items.map((item, idx) => `
-        <div class="flex justify-between items-center py-1 border-b border-slate-800/50">
-          <span>${idx + 1}. ${item.item_type || item.type} (${item.weight}) - 월 ${item.rate}%</span>
-          <span class="font-semibold text-amber-400">${formatCurrency(item.amount)} 원</span>
-        </div>
-      `).join('');
+      goldList.innerHTML = user.items.map((item, idx) => {
+        const itemNextDue = getNextDueDate(item.loan_date || item.loanDate);
+        const itemLoanDate = item.loan_date || item.loanDate || '-';
+        return `
+          <div class="flex flex-col md:flex-row md:justify-between md:items-center p-2 bg-slate-950/60 rounded border border-slate-800 gap-1">
+            <div>
+              <span class="font-bold text-slate-100">${idx + 1}. ${item.item_type || item.type} (${item.weight})</span>
+              <span class="text-xs text-slate-400 ml-2">대출일: ${itemLoanDate}</span>
+            </div>
+            <div class="text-left md:text-right">
+              <span class="font-semibold text-amber-400">${formatCurrency(item.amount)} 원 (월 ${item.rate}%)</span>
+              <span class="block text-[11px] text-emerald-400">다음 납부일: ${formatDate(itemNextDue)}</span>
+            </div>
+          </div>
+        `;
+      }).join('');
 
-      document.getElementById('cust-next-due-date').innerText = formatDate(nextDue);
+      document.getElementById('cust-next-due-date').innerText = formatDate(earliestNextDue);
 
       // 납부 내역 및 총 이자 계산
       const t = i18n[currentLang];
@@ -912,6 +903,7 @@
       }
     }
 
+    // 3번 적용: 관리자 대시보드 내 담보별 대출일 및 납부일 리스트 상세 출력
     async function renderAdminDashboard() {
       document.getElementById('section-login').classList.add('hidden');
       document.getElementById('section-admin-dashboard').classList.remove('hidden');
@@ -926,27 +918,51 @@
 
       const t = i18n[currentLang];
 
+      // 각 고객의 가장 빠른 대출 납부 예정일을 기준으로 오름차순 정렬
       const sortedCustomers = [...customers].sort((a, b) => {
-        return getNextDueDate(a.loanDate) - getNextDueDate(b.loanDate);
+        let earliestA = null;
+        a.items.forEach(item => {
+          const due = getNextDueDate(item.loan_date || item.loanDate);
+          if (!earliestA || due < earliestA) earliestA = due;
+        });
+
+        let earliestB = null;
+        b.items.forEach(item => {
+          const due = getNextDueDate(item.loan_date || item.loanDate);
+          if (!earliestB || due < earliestB) earliestB = due;
+        });
+
+        return (earliestA || new Date()) - (earliestB || new Date());
       });
 
       sortedCustomers.forEach(c => {
         const custPrincipal = c.items.reduce((sum, item) => sum + Number(item.amount), 0);
         const interest = calculateTotalInterest(c.items);
-        const nextDue = getNextDueDate(c.loanDate);
+
+        let earliestNextDue = null;
+        c.items.forEach(item => {
+          const itemDue = getNextDueDate(item.loan_date || item.loanDate);
+          if (!earliestNextDue || itemDue < earliestNextDue) {
+            earliestNextDue = itemDue;
+          }
+        });
 
         totalPrincipal += custPrincipal;
         totalInterest += interest;
 
-        const goldDetails = c.items.map(item => `• ${item.item_type || item.type} (${item.weight}, ${item.rate}%): ${formatCurrency(item.amount)} 원`).join('<br>');
+        // 담보물별 개별 대출일 및 납부 예정일 상세 표시
+        const goldDetails = c.items.map(item => {
+          const itemNextDue = getNextDueDate(item.loan_date || item.loanDate);
+          const itemLoanDate = item.loan_date || item.loanDate || '-';
+          return `• ${item.item_type || item.type} (${item.weight}, ${item.rate}%): ${formatCurrency(item.amount)} 원<br>&nbsp;&nbsp;<span class="text-amber-300">└ 대출일: ${itemLoanDate} | 다음납부: ${formatDate(itemNextDue)}</span>`;
+        }).join('<br>');
 
         const row = document.createElement('tr');
         row.className = "hover:bg-slate-900/50 border-b border-slate-800";
         row.innerHTML = `
           <td class="py-3 px-4 font-semibold text-amber-400 align-top">${c.name}</td>
           <td class="py-3 px-4 align-top">${c.phone}</td>
-          <td class="py-3 px-4 align-top">${c.loanDate || '-'}</td>
-          <td class="py-3 px-4 font-bold text-white align-top">${formatDate(nextDue)}</td>
+          <td class="py-3 px-4 font-bold text-white align-top">${formatDate(earliestNextDue)}</td>
           <td class="py-3 px-4 align-top">
             <div class="font-bold text-white mb-1">합계: ${formatCurrency(custPrincipal)} 원</div>
             <div class="text-xs text-slate-400 leading-relaxed">${goldDetails}</div>
@@ -996,7 +1012,6 @@
       document.getElementById('modal-payment-cust-name').innerText = `${customer.name} (${customer.phone})`;
       document.getElementById('pay-input-amount').value = interestAmount;
       document.getElementById('pay-input-note').value = `${new Date().getMonth() + 1}월 이자 입금`;
-      document.getElementById('pay-extend-date').checked = true;
 
       document.getElementById('modal-payment').classList.remove('hidden');
 
@@ -1051,12 +1066,10 @@
       e.preventDefault();
       if (!currentActiveCustId) return;
 
-      const customer = customers.find(c => c.id === currentActiveCustId);
       const amount = Number(document.getElementById('pay-input-amount').value);
       const note = document.getElementById('pay-input-note').value.trim();
-      const shouldExtend = document.getElementById('pay-extend-date').checked;
 
-      // 1. payment_logs 테이블에 입력 내역 추가
+      // payment_logs 테이블에 입력 내역 추가
       const { error: logError } = await supabaseClient
         .from('payment_logs')
         .insert([{
@@ -1070,25 +1083,8 @@
         return;
       }
 
-      // 2. 만기일 1달 연장 옵션 체크 시 loan_date 업데이트
-      if (shouldExtend && customer) {
-        const currDate = new Date(customer.loanDate || new Date());
-        currDate.setMonth(currDate.getMonth() + 1);
-        const newLoanDate = formatDate(currDate);
-
-        const { error: updateError } = await supabaseClient
-          .from('customers')
-          .update({ loan_date: newLoanDate })
-          .eq('id', currentActiveCustId);
-
-        if (updateError) {
-          alert("만기일 연장 실패: " + updateError.message);
-        }
-      }
-
       alert(currentLang === 'ko' ? "입금 내역이 성공적으로 저장되었습니다." : "บันทึกการชำระเงินเรียบร้อยแล้ว");
       
-      // 모달 내 과거 목록 및 대시보드 갱신
       await loadPaymentHistory(currentActiveCustId);
       renderAdminDashboard();
     }
@@ -1111,14 +1107,13 @@
     }
 
     // ==========================================
-    // 대출 등록 로직 (loans 테이블 의존성 제거 반영)
+    // 대출 등록 및 수정 로직 (gold_items 개별 loan_date 포함)
     // ==========================================
     async function handleAddCustomer(e) {
       e.preventDefault();
       const name = document.getElementById('add-name').value.trim();
       const phone = document.getElementById('add-phone').value.trim();
       const pw = document.getElementById('add-pw').value.trim();
-      const loan_date = document.getElementById('add-date').value;
       const items = getGoldItemsData('add-gold-container');
 
       if (items.length === 0) {
@@ -1142,10 +1137,10 @@
 
       if (existingCust) {
         customerId = existingCust.id;
-        // 기존 고객 정보(이름, 비밀번호, 대출일자) 갱신
+        // 기존 고객 정보 갱신
         const { error: updateError } = await supabaseClient
           .from('customers')
-          .update({ name, pw, loan_date })
+          .update({ name, pw })
           .eq('id', customerId);
 
         if (updateError) {
@@ -1156,7 +1151,7 @@
         // 신규 고객 생성
         const { data: custData, error: custError } = await supabaseClient
           .from('customers')
-          .insert([{ name, phone, pw, loan_date }])
+          .insert([{ name, phone, pw }])
           .select()
           .single();
 
@@ -1167,13 +1162,14 @@
         customerId = custData.id;
       }
 
-      // 2. 담보 물품 등록 (customer_id와 직접 연결)
+      // 2. 담보 물품 등록 (개별 loan_date 포함)
       const goldPayload = items.map(item => ({
         customer_id: customerId,
         item_type: item.item_type,
         weight: item.weight,
         amount: item.amount,
-        rate: item.rate
+        rate: item.rate,
+        loan_date: item.loan_date
       }));
 
       const { error: goldError } = await supabaseClient
@@ -1201,7 +1197,6 @@
       document.getElementById('edit-name').value = customer.name;
       document.getElementById('edit-phone').value = customer.phone;
       document.getElementById('edit-pw').value = customer.pw;
-      document.getElementById('edit-date').value = customer.loanDate || '';
 
       const editContainer = document.getElementById('edit-gold-container');
       editContainer.innerHTML = "";
@@ -1241,8 +1236,7 @@
         .update({
           name: document.getElementById('edit-name').value.trim(),
           phone: document.getElementById('edit-phone').value.trim(),
-          pw: document.getElementById('edit-pw').value.trim(),
-          loan_date: document.getElementById('edit-date').value
+          pw: document.getElementById('edit-pw').value.trim()
         })
         .eq('id', id);
 
@@ -1258,7 +1252,8 @@
         item_type: item.item_type,
         weight: item.weight,
         amount: item.amount,
-        rate: item.rate
+        rate: item.rate,
+        loan_date: item.loan_date
       }));
 
       const { error: goldError } = await supabaseClient
