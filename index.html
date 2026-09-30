@@ -3,487 +3,1304 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>금 담보 대출 관리 시스템</title>
-  <!-- Supabase JS CDN -->
+  <title>금 담보 대출 / 전당포 관리 시스템</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <!-- Supabase JS SDK 추가 -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    :root {
-      --primary-color: #d4af37;
-      --bg-color: #f4f6f9;
-      --card-bg: #ffffff;
-      --text-color: #333333;
-      --border-color: #e0e0e0;
-    }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    }
-
-    body {
-      background-color: var(--bg-color);
-      color: var(--text-color);
-      padding: 20px;
-    }
-
-    .container {
-      max-width: 1000px;
-      margin: 0 auto;
-    }
-
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-      padding-bottom: 10px;
-      border-bottom: 2px solid var(--primary-color);
-    }
-
-    .lang-switch button {
-      padding: 5px 10px;
-      margin-left: 5px;
-      cursor: pointer;
-      border: 1px solid var(--primary-color);
-      background: white;
-      border-radius: 4px;
-    }
-
-    .lang-switch button.active {
-      background: var(--primary-color);
-      color: white;
-    }
-
-    .card {
-      background: var(--card-bg);
-      border-radius: 8px;
-      padding: 20px;
-      margin-bottom: 20px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-    }
-
-    h2 {
-      margin-bottom: 15px;
-      color: #2c3e50;
-      font-size: 1.2rem;
-    }
-
-    .form-group {
-      margin-bottom: 15px;
-    }
-
-    label {
-      display: block;
-      margin-bottom: 5px;
-      font-weight: bold;
-      font-size: 0.9rem;
-    }
-
-    input, select, button {
-      width: 100%;
-      padding: 10px;
-      border: 1px solid var(--border-color);
-      border-radius: 4px;
-      font-size: 0.95rem;
-    }
-
-    .gold-row {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 10px;
-      align-items: center;
-    }
-
-    .gold-row input, .gold-row select {
-      flex: 1;
-    }
-
-    .btn-remove {
-      width: auto;
-      background: #ff4d4d;
-      color: white;
-      border: none;
-      padding: 10px 15px;
-      cursor: pointer;
-    }
-
-    .btn-primary {
-      background: var(--primary-color);
-      color: white;
-      border: none;
-      font-weight: bold;
-      cursor: pointer;
-    }
-
-    .btn-secondary {
-      background: #6c757d;
-      color: white;
-      border: none;
-      cursor: pointer;
-      margin-top: 5px;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 15px;
-    }
-
-    th, td {
-      border: 1px solid var(--border-color);
-      padding: 10px;
-      text-align: left;
-      font-size: 0.9rem;
-    }
-
-    th {
-      background-color: #f8f9fa;
-    }
-
-    .badge {
-      display: inline-block;
-      padding: 3px 7px;
-      border-radius: 3px;
-      font-size: 0.8rem;
-      background: #e9ecef;
-    }
+    @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap');
+    body { font-family: 'Noto Sans KR', 'Kanit', sans-serif; }
+    .gold-gradient { background: linear-gradient(135deg, #bf953f 0%, #fcf6ba 25%, #b38728 50%, #fbf5b7 75%, #aa771c 100%); }
+    .gold-card { background: linear-gradient(145deg, #1e293b, #0f172a); border: 1px solid rgba(212, 175, 55, 0.3); }
+    .gold-btn { background: linear-gradient(135deg, #d4af37, #aa771c); color: #000; font-weight: 700; }
+    .gold-btn:hover { background: linear-gradient(135deg, #f3e5ab, #c59b27); }
   </style>
 </head>
-<body>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between">
 
-<div class="container">
-  <header>
-    <h1 id="app-title">금 담보 대출 관리 System</h1>
-    <div class="lang-switch">
-      <button id="btn-ko" class="active" onclick="switchLanguage('ko')">한국어</button>
-      <button id="btn-th" onclick="switchLanguage('th')">ไทย</button>
+  <!-- 헤더 -->
+  <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-50 px-4 py-3 flex justify-between items-center">
+    <div class="flex items-center space-x-3">
+      <img src="./logo.jpg" alt="HANGTHONG SOMBOON Logo" class="w-10 h-10 rounded-full object-cover border border-amber-500/50 shadow-lg">
+      <div>
+        <h1 class="text-lg font-bold text-amber-400 leading-tight" id="header-title">HANGTHONG SOMBOON</h1>
+        <p class="text-xs text-slate-400" id="header-subtitle">금 담보 대출 이자 관리 시스템</p>
+      </div>
+    </div>
+    
+    <!-- 언어 변경 -->
+    <div class="flex items-center space-x-2 bg-slate-800 p-1 rounded-lg border border-slate-700">
+      <button id="lang-ko" onclick="setLanguage('ko')" class="px-3 py-1 text-xs rounded font-medium bg-amber-500 text-slate-950">한국어</button>
+      <button id="lang-th" onclick="setLanguage('th')" class="px-3 py-1 text-xs rounded font-medium text-slate-400 hover:text-white">ไทย</button>
     </div>
   </header>
 
-  <!-- 신규 대출 및 고객 등록 -->
-  <div class="card">
-    <h2 id="txt-add-title">신규 대출 및 고객 등록</h2>
-    <form id="add-customer-form" onsubmit="handleAddCustomer(event)">
-      <div class="form-group">
-        <label id="lbl-add-name">고객명</label>
-        <input type="text" id="add-name" required>
+  <!-- 메인 컨테이너 -->
+  <main class="container mx-auto px-4 py-8 max-w-5xl flex-grow">
+
+    <!-- 로그인 화면 -->
+    <div id="section-login" class="max-w-md mx-auto">
+      <div class="gold-card rounded-2xl p-6 shadow-2xl mb-6 text-center">
+        <h2 class="text-2xl font-bold text-amber-400 mb-2" id="login-title">시스템 로그인</h2>
+        <p class="text-slate-400 text-sm mb-6" id="login-desc">고객 조회 및 관리자 접근을 위해 로그인해주세요.</p>
+
+        <div class="grid grid-cols-2 gap-2 bg-slate-900 p-1 rounded-xl mb-6">
+          <button id="tab-cust-btn" onclick="switchLoginTab('customer')" class="py-2.5 rounded-lg text-sm font-semibold bg-amber-500 text-slate-950 transition">
+            <i class="fa-solid fa-user mr-1"></i> <span id="tab-customer">고객 로그인</span>
+          </button>
+          <button id="tab-admin-btn" onclick="switchLoginTab('admin')" class="py-2.5 rounded-lg text-sm font-semibold text-slate-400 hover:text-white transition">
+            <i class="fa-solid fa-user-shield mr-1"></i> <span id="tab-admin">관리자 로그인</span>
+          </button>
+        </div>
+
+        <form id="form-customer-login" onsubmit="handleCustomerLogin(event)" class="space-y-4">
+          <div>
+            <label class="block text-left text-xs font-medium text-slate-400 mb-1" id="lbl-phone">전화번호</label>
+            <input type="text" id="cust-phone" placeholder="01012345678" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-slate-100 focus:outline-none focus:border-amber-500">
+          </div>
+          <div>
+            <label class="block text-left text-xs font-medium text-slate-400 mb-1" id="lbl-cust-pw">비밀번호</label>
+            <input type="password" id="cust-password" placeholder="••••" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-slate-100 focus:outline-none focus:border-amber-500">
+          </div>
+          <button type="submit" class="w-full gold-btn py-3 rounded-lg shadow-lg font-bold transition text-base">
+            <span id="btn-cust-login">조회하기</span>
+          </button>
+        </form>
+
+        <form id="form-admin-login" onsubmit="handleAdminLogin(event)" class="space-y-4 hidden">
+          <div>
+            <label class="block text-left text-xs font-medium text-slate-400 mb-1" id="lbl-admin-pw">관리자 비밀번호</label>
+            <input type="password" id="admin-password" placeholder="••••" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-slate-100 focus:outline-none focus:border-amber-500">
+          </div>
+          <button type="submit" class="w-full gold-btn py-3 rounded-lg shadow-lg font-bold transition text-base">
+            <span id="btn-admin-login">관리자 접속</span>
+          </button>
+        </form>
       </div>
-      <div class="form-group">
-        <label id="lbl-add-phone">전화번호</label>
-        <input type="text" id="add-phone" required>
-      </div>
-      <div class="form-group">
-        <label id="lbl-add-pw">비밀번호</label>
-        <input type="password" id="add-pw" required>
-      </div>
-      <div class="form-group">
-        <label id="lbl-add-date">대출일자</label>
-        <input type="date" id="add-date" required>
+    </div>
+
+    <!-- 고객 대시보드 화면 -->
+    <div id="section-customer-dashboard" class="hidden space-y-6">
+      <div class="flex justify-between items-center bg-slate-900 p-4 rounded-xl border border-slate-800">
+        <div>
+          <span class="text-xs text-slate-400" id="lbl-welcome">반갑습니다,</span>
+          <h2 class="text-xl font-bold text-amber-400" id="cust-name-display">-</h2>
+        </div>
+        <button onclick="logout()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-medium">
+          <i class="fa-solid fa-right-from-bracket mr-1"></i> <span id="btn-logout">로그아웃</span>
+        </button>
       </div>
 
-      <div class="form-group">
-        <label id="lbl-add-gold">담보 금 정보</label>
-        <div id="add-gold-container"></div>
-        <button type="button" class="btn-secondary" onclick="addGoldInputRow('add-gold-container')" id="btn-add-gold-row">+ 금 정보 추가</button>
+      <div class="gold-card rounded-2xl p-6 shadow-xl space-y-6">
+        <div class="flex justify-between items-center border-b border-slate-800 pb-4">
+          <div>
+            <span class="text-xs text-slate-400" id="lbl-loan-date">대출 일자</span>
+            <p class="text-lg font-semibold text-slate-200" id="cust-loan-date">-</p>
+          </div>
+          <span class="px-3 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" id="lbl-status-active">정상 이용중</span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="bg-slate-900/80 p-4 rounded-xl border border-slate-800">
+            <span class="text-xs text-slate-400 block mb-1" id="lbl-principal">총 원금 (빌린 금액)</span>
+            <p class="text-2xl font-bold text-white" id="cust-principal">-</p>
+          </div>
+          <div class="bg-slate-900/80 p-4 rounded-xl border border-slate-800">
+            <span class="text-xs text-slate-400 block mb-1" id="lbl-monthly-interest">월 총 이자 비용</span>
+            <p class="text-2xl font-bold text-amber-400" id="cust-interest-amount">-</p>
+          </div>
+          <div class="bg-slate-900/80 p-4 rounded-xl border border-slate-800">
+            <span class="text-xs text-slate-400 block mb-1" id="lbl-total-paid-interest">총 누적 납부 이자</span>
+            <p class="text-2xl font-bold text-emerald-400" id="cust-total-paid-interest">0 원</p>
+          </div>
+        </div>
+
+        <!-- 맡긴 금 목록 정보 -->
+        <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800 space-y-2">
+          <h4 class="text-sm font-bold text-amber-400" id="lbl-cust-gold-items">맡기신 금 정보</h4>
+          <div id="cust-gold-list" class="space-y-1 text-xs text-slate-300"></div>
+        </div>
+
+        <div class="bg-gradient-to-r from-amber-600 to-amber-700 text-slate-950 p-6 rounded-xl shadow-lg flex flex-col md:flex-row justify-between items-center gap-4">
+          <div>
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-900" id="lbl-next-due-title">다음 이자 납부 예정일</span>
+            <h3 class="text-3xl font-black text-slate-950 mt-1" id="cust-next-due-date">-</h3>
+            <p class="text-xs text-slate-900/80 mt-2" id="lbl-auto-roll-info">* 원금을 상환하지 않는 경우 매월 동일한 일자에 월 이자가 자동으로 이월되어 안내됩니다.</p>
+          </div>
+          <div class="bg-slate-950 text-amber-400 px-6 py-4 rounded-xl w-full md:w-auto text-center border border-amber-500/30">
+            <span class="text-xs text-slate-400 block" id="lbl-amount-due">납부해야 할 이자</span>
+            <span class="text-2xl font-black" id="cust-pay-amount">-</span>
+          </div>
+        </div>
+
+        <!-- 고객용 납부 내역 섹션 -->
+        <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800 space-y-3">
+          <h4 class="text-sm font-bold text-amber-400" id="lbl-cust-payment-history-title">이자 납부 이력 내역</h4>
+          <div id="cust-payment-history-list" class="space-y-2 text-xs">
+            <p class="text-xs text-slate-500 text-center py-2">내역을 불러오는 중...</p>
+          </div>
+        </div>
+
+        <!-- 유의사항 섹션 -->
+        <div class="bg-slate-900/50 rounded-xl p-5 border border-slate-800/80 text-xs text-slate-300 space-y-4">
+          <div>
+            <div class="flex items-center space-x-2 text-amber-400 font-bold text-sm mb-1">
+              <i class="fa-solid fa-circle-info"></i>
+              <span id="lbl-notice-1-title">[이자 납부 및 연체 규정]</span>
+            </div>
+            <ul class="list-disc list-inside space-y-1 text-slate-400 pl-1">
+              <li id="lbl-notice-1-item1">유예 기간: 만기일 기준 3일까지 허용</li>
+              <li id="lbl-notice-1-item2">연체료: 3일 초과 시 하루 8,000원</li>
+              <li id="lbl-notice-1-item3">금 몰수: 무연락 10일 이상 연체 시, 포기로 간주하여 사전 통보 없이 즉시 몰수</li>
+            </ul>
+          </div>
+
+          <div>
+            <div class="flex items-center space-x-2 text-amber-400 font-bold text-sm mb-1">
+              <i class="fa-solid fa-circle-info"></i>
+              <span id="lbl-notice-2-title">[원금 상환 안내]</span>
+            </div>
+            <ul class="list-disc list-inside space-y-1 text-slate-400 pl-1">
+              <li id="lbl-notice-2-item1">현금 또는 계좌이체만 가능</li>
+              <li id="lbl-notice-2-item2">계좌이체 시 본인 명의 계좌만 가능 (타인 명의 송금 절대 불가)</li>
+            </ul>
+          </div>
+
+          <div>
+            <div class="flex items-center space-x-2 text-amber-400 font-bold text-sm mb-1">
+              <i class="fa-solid fa-circle-info"></i>
+              <span id="lbl-notice-3-title">[원금 감액 및 이자]</span>
+            </div>
+            <ul class="list-disc list-inside space-y-1 text-slate-400 pl-1">
+              <li id="lbl-notice-3-item1">원금 일부 상환 시 이자 감면 (단, 첫 달은 감면 없이 전액 부과)</li>
+              <li id="lbl-notice-3-item2">이자율은 기준에 따라 변동될 수 있음</li>
+            </ul>
+          </div>
+
+          <div>
+            <div class="flex items-center space-x-2 text-amber-400 font-bold text-sm mb-1">
+              <i class="fa-solid fa-circle-info"></i>
+              <span id="lbl-notice-4-title">[택배 배송]</span>
+            </div>
+            <ul class="list-disc list-inside space-y-1 text-slate-400 pl-1">
+              <li id="lbl-notice-4-item1">매장 방문이 어려울 경우 택배 배송 가능 (배송비 8,000원)</li>
+            </ul>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 관리자 대시보드 화면 -->
+    <div id="section-admin-dashboard" class="hidden space-y-6">
+      <div class="flex justify-between items-center bg-slate-900 p-4 rounded-xl border border-slate-800">
+        <h2 class="text-xl font-bold text-amber-400" id="admin-title">관리자 대시보드</h2>
+        <button onclick="logout()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-medium">
+          <i class="fa-solid fa-right-from-bracket mr-1"></i> <span id="btn-admin-logout">로그아웃</span>
+        </button>
       </div>
 
-      <button type="submit" class="btn-primary" id="btn-submit-add">등록하기</button>
-    </form>
-  </div>
+      <!-- 통계 카운트 -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="gold-card p-5 rounded-xl">
+          <span class="text-xs text-slate-400" id="lbl-total-cust">총 대출 고객 수</span>
+          <p class="text-3xl font-bold text-white mt-2" id="stat-total-cust">0 명</p>
+        </div>
+        <div class="gold-card p-5 rounded-xl">
+          <span class="text-xs text-slate-400" id="lbl-total-principal">총 빌려준 금액 (원금)</span>
+          <p class="text-3xl font-bold text-amber-400 mt-2" id="stat-total-principal">0 원</p>
+        </div>
+        <div class="gold-card p-5 rounded-xl">
+          <span class="text-xs text-slate-400" id="lbl-total-monthly-interest">월 총 예상 이자 수입</span>
+          <p class="text-3xl font-bold text-emerald-400 mt-2" id="stat-total-interest">0 원</p>
+        </div>
+      </div>
 
-  <!-- 관리자 대시보드 / 고객 목록 -->
-  <div class="card">
-    <h2 id="txt-list-title">대출 현황 목록</h2>
-    <button class="btn-secondary" onclick="loadCustomersFromSupabase()" style="margin-bottom: 15px; width: auto;" id="btn-refresh">새로고침</button>
-    
-    <div style="overflow-x: auto;">
-      <table>
-        <thead>
-          <tr>
-            <th id="th-name">고객명</th>
-            <th id="th-phone">전화번호</th>
-            <th id="th-date">대출일자</th>
-            <th id="th-gold">담보 내역</th>
-            <th id="th-action">관리</th>
-          </tr>
-        </thead>
-        <tbody id="customer-list-body">
-          <!-- 목록이 동적으로 생성됨 -->
-        </tbody>
-      </table>
+      <!-- 신규 고객 등록 -->
+      <div class="gold-card p-6 rounded-xl space-y-4">
+        <h3 class="text-lg font-bold text-amber-400 border-b border-slate-800 pb-2" id="title-add-cust">신규 고객 등록</h3>
+        <form onsubmit="handleAddCustomer(event)" class="space-y-4">
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div>
+              <label class="block text-xs text-slate-400 mb-1" id="lbl-input-name">고객 이름</label>
+              <input type="text" id="add-name" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-sm">
+            </div>
+            <div>
+              <label class="block text-xs text-slate-400 mb-1" id="lbl-input-phone">전화번호 (아이디)</label>
+              <input type="text" id="add-phone" required placeholder="01012345678" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-sm">
+            </div>
+            <div>
+              <label class="block text-xs text-slate-400 mb-1" id="lbl-input-pw">비밀번호</label>
+              <input type="password" id="add-pw" required placeholder="1234" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-sm">
+            </div>
+            <div>
+              <label class="block text-xs text-slate-400 mb-1" id="lbl-input-date">대출 날짜</label>
+              <input type="date" id="add-date" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-sm text-slate-100">
+            </div>
+          </div>
+
+          <!-- 금 정보 입력 dynamic 컨테이너 -->
+          <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800 space-y-3">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+              <span class="text-xs font-bold text-amber-400" id="lbl-gold-items-title">담보 금 정보 설정</span>
+              <button type="button" onclick="addGoldInputRow('add-gold-container')" class="px-2.5 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded font-bold text-xs">
+                <i class="fa-solid fa-plus mr-1"></i> <span id="btn-add-gold-row">추가</span>
+              </button>
+            </div>
+            <div id="add-gold-container" class="space-y-2"></div>
+          </div>
+
+          <div>
+            <button type="submit" class="w-full gold-btn py-3 rounded-lg font-bold">
+              <i class="fa-solid fa-plus mr-1"></i> <span id="btn-add-cust">고객 등록 및 대출 정보 추가</span>
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- 고객 목록 및 관리 테이블 -->
+      <div class="gold-card p-6 rounded-xl space-y-4">
+        <h3 class="text-lg font-bold text-amber-400 border-b border-slate-800 pb-2" id="title-daily-schedule">일자별 이자 수금 및 고객 관리</h3>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-sm text-slate-300">
+            <thead class="bg-slate-900 text-xs text-slate-400 uppercase border-b border-slate-800">
+              <tr>
+                <th class="py-3 px-4" id="th-name">고객명</th>
+                <th class="py-3 px-4" id="th-phone">전화번호</th>
+                <th class="py-3 px-4" id="th-loan-date">대출일</th>
+                <th class="py-3 px-4" id="th-due-date">다음 납부 예정일</th>
+                <th class="py-3 px-4" id="th-principal">원금 및 금 상세 내역</th>
+                <th class="py-3 px-4 text-right" id="th-interest">합산 이자</th>
+                <th class="py-3 px-4 text-center" id="th-action">관리</th>
+              </tr>
+            </thead>
+            <tbody id="table-schedule-body" class="divide-y divide-slate-800"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- 고객 정보 수정 모달 (팝업) -->
+  <div id="modal-edit-customer" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden">
+    <div class="gold-card w-full max-w-xl p-6 rounded-2xl shadow-2xl space-y-4 border border-amber-500/40 max-h-[90vh] overflow-y-auto">
+      <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+        <h3 class="text-lg font-bold text-amber-400" id="title-edit-modal">고객 정보 수정</h3>
+        <button onclick="closeEditModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+
+      <form onsubmit="handleUpdateCustomer(event)" class="space-y-4">
+        <input type="hidden" id="edit-id">
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs text-slate-400 mb-1" id="lbl-edit-name">고객 이름</label>
+            <input type="text" id="edit-name" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-sm">
+          </div>
+          <div>
+            <label class="block text-xs text-slate-400 mb-1" id="lbl-edit-phone">전화번호</label>
+            <input type="text" id="edit-phone" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-sm">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs text-slate-400 mb-1" id="lbl-edit-pw">비밀번호</label>
+            <input type="password" id="edit-pw" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-sm">
+          </div>
+          <div>
+            <label class="block text-xs text-slate-400 mb-1" id="lbl-edit-date">대출 날짜 (납부일 연동)</label>
+            <input type="date" id="edit-date" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-sm text-slate-100">
+          </div>
+        </div>
+
+        <!-- 맡긴 금 수정 Dynamic 컨테이너 -->
+        <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800 space-y-3">
+          <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+            <span class="text-xs font-bold text-amber-400" id="lbl-edit-gold-items-title">담보 금 정보 수정</span>
+            <button type="button" onclick="addGoldInputRow('edit-gold-container')" class="px-2.5 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded font-bold text-xs">
+              <i class="fa-solid fa-plus mr-1"></i> <span id="btn-edit-add-gold-row">추가</span>
+            </button>
+          </div>
+          <div id="edit-gold-container" class="space-y-2"></div>
+        </div>
+
+        <!-- 실시간 이자 자동 계산 안내 박스 -->
+        <div class="bg-amber-500/10 border border-amber-500/30 p-3 rounded-lg flex justify-between items-center text-sm">
+          <span class="text-slate-300" id="lbl-auto-calc-interest">자동 계산된 합산 월 이자:</span>
+          <span class="text-amber-400 font-bold text-base" id="edit-calculated-interest">0 원</span>
+        </div>
+
+        <div class="flex space-x-2 pt-2">
+          <button type="button" onclick="closeEditModal()" class="w-1/2 py-2.5 bg-slate-800 hover:bg-slate-700 rounded-lg text-sm font-semibold text-slate-300" id="btn-cancel-edit">취소</button>
+          <button type="submit" class="w-1/2 gold-btn py-2.5 rounded-lg text-sm font-bold" id="btn-save-edit">저장하기</button>
+        </div>
+      </form>
     </div>
   </div>
-</div>
 
-<script>
-  // 1. Supabase 클라이언트 설정 (본인 프로젝트 정보 입력)
-  const SUPABASE_URL = 'https://YOUR_SUPABASE_URL.supabase.co';
-  const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
-  const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  <!-- 입금 확인 및 납부 이력 관리 모달 -->
+  <div id="modal-payment" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden">
+    <div class="gold-card w-full max-w-lg p-6 rounded-2xl shadow-2xl space-y-5 border border-amber-500/40 max-h-[90vh] overflow-y-auto">
+      <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+        <div>
+          <h3 class="text-lg font-bold text-amber-400" id="modal-payment-title">이자 입금 및 납부 이력 관리</h3>
+          <p class="text-xs text-slate-400 mt-0.5" id="modal-payment-cust-name">-</p>
+        </div>
+        <button onclick="closePaymentModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
 
-  let currentLang = 'ko';
+      <!-- 신규 입금 등록 폼 -->
+      <form onsubmit="handleSavePayment(event)" class="space-y-3 bg-slate-900/80 p-4 rounded-xl border border-slate-800">
+        <h4 class="text-xs font-bold text-amber-400 uppercase tracking-wider" id="lbl-pay-form-title">신규 입금 등록</h4>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs text-slate-400 mb-1" id="lbl-pay-amount">입금 금액 (원)</label>
+            <input type="number" id="pay-input-amount" required class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-sm text-white font-bold">
+          </div>
+          <div>
+            <label class="block text-xs text-slate-400 mb-1" id="lbl-pay-note">비고 / 메모</label>
+            <input type="text" id="pay-input-note" placeholder="예: 3월 이자 입금" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-sm">
+          </div>
+        </div>
+        <div class="flex items-center pt-1">
+          <label class="flex items-center space-x-2 text-xs text-slate-300 cursor-pointer">
+            <input type="checkbox" id="pay-extend-date" checked class="rounded border-slate-700 text-amber-500 focus:ring-amber-500 bg-slate-950">
+            <span id="lbl-pay-extend-check">입금 저장 시 대출 만기일을 1달 자동 연장</span>
+          </label>
+        </div>
+        <button type="submit" class="w-full gold-btn py-2.5 rounded-lg text-sm font-bold mt-2">
+          <i class="fa-solid fa-check mr-1"></i> <span id="btn-save-payment">입금 저장 및 확인 완료</span>
+        </button>
+      </form>
 
-  const translations = {
-    ko: {
-      title: "금 담보 대출 관리 System",
-      addTitle: "신규 대출 및 고객 등록",
-      name: "고객명",
-      phone: "전화번호",
-      pw: "비밀번호",
-      date: "대출일자",
-      goldInfo: "담보 금 정보",
-      addGoldRow: "+ 금 정보 추가",
-      submitAdd: "등록하기",
-      listTitle: "대출 현황 목록",
-      refresh: "새로고침",
-      thName: "고객명",
-      thPhone: "전화번호",
-      thDate: "대출일자",
-      thGold: "담보 내역",
-      thAction: "관리",
-      delete: "삭제",
-      goldType: "종류",
-      weight: "중량(g)",
-      amount: "대출금액",
-      rate: "이율(%)"
-    },
-    th: {
-      title: "ระบบจัดการจำนำทอง",
-      addTitle: "ลงทะเบียนลูกค้าและเงินกู้ใหม่",
-      name: "ชื่อลูกค้า",
-      phone: "เบอร์โทรศัพท์",
-      pw: "รหัสผ่าน",
-      date: "วันที่กู้",
-      goldInfo: "ข้อมูลทองคำค้ำประกัน",
-      addGoldRow: "+ เพิ่มรายการทอง",
-      submitAdd: "บันทึกข้อมูล",
-      listTitle: "รายการเงินกู้",
-      refresh: "รีเฟรช",
-      thName: "ชื่อลูกค้า",
-      thPhone: "เบอร์โทรศัพท์",
-      thDate: "วันที่กู้",
-      thGold: "รายการทองคำ",
-      thAction: "จัดการ",
-      delete: "ลบ",
-      goldType: "ประเภท",
-      weight: "น้ำหนัก(g)",
-      amount: "ยอดเงินกู้",
-      rate: "ดอกเบี้ย(%)"
-    }
-  };
+      <!-- 과거 납부 내역 리스트 -->
+      <div class="space-y-3">
+        <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider" id="lbl-history-title">과거 납부 기록 목록</h4>
+        <div id="payment-history-list" class="space-y-2 max-h-52 overflow-y-auto pr-1">
+          <p class="text-xs text-slate-500 text-center py-4" id="lbl-history-loading">내역을 불러오는 중...</p>
+        </div>
+      </div>
 
-  // 언어 변경 함수
-  function switchLanguage(lang) {
-    currentLang = lang;
-    document.getElementById('btn-ko').classList.toggle('active', lang === 'ko');
-    document.getElementById('btn-th').classList.toggle('active', lang === 'th');
+      <div class="pt-2 border-t border-slate-800">
+        <button type="button" onclick="closePaymentModal()" class="w-full py-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-xs font-semibold text-slate-300" id="btn-close-payment">닫기</button>
+      </div>
+    </div>
+  </div>
 
-    const t = translations[lang];
-    document.getElementById('app-title').innerText = t.title;
-    document.getElementById('txt-add-title').innerText = t.addTitle;
-    document.getElementById('lbl-add-name').innerText = t.name;
-    document.getElementById('lbl-add-phone').innerText = t.phone;
-    document.getElementById('lbl-add-pw').innerText = t.pw;
-    document.getElementById('lbl-add-date').innerText = t.date;
-    document.getElementById('lbl-add-gold').innerText = t.goldInfo;
-    document.getElementById('btn-add-gold-row').innerText = t.addGoldRow;
-    document.getElementById('btn-submit-add').innerText = t.submitAdd;
-    document.getElementById('txt-list-title').innerText = t.listTitle;
-    document.getElementById('btn-refresh').innerText = t.refresh;
-    document.getElementById('th-name').innerText = t.thName;
-    document.getElementById('th-phone').innerText = t.thPhone;
-    document.getElementById('th-date').innerText = t.thDate;
-    document.getElementById('th-gold').innerText = t.thGold;
-    document.getElementById('th-action').innerText = t.thAction;
-  }
+  <footer class="border-t border-slate-800 bg-slate-900 py-4 text-center text-xs text-slate-500">
+    <p>© 2026 HANGTHONG SOMBOON. All rights reserved.</p>
+  </footer>
 
-  // 동적 금 정보 입력 행 추가
-  function addGoldInputRow(containerId) {
-    const container = document.getElementById(containerId);
-    const div = document.createElement('div');
-    div.className = 'gold-row';
-    const t = translations[currentLang];
+  <script>
+    // ==========================================
+    // Supabase 설정
+    // ==========================================
+    const SUPABASE_URL = 'https://guwkdfqvljlzgjdpnonh.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd1d2tkZnF2bGpsemdqZHBub25oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkyMDg2ODEsImV4cCI6MjEwNDc4NDY4MX0.Q3ekrqKEIwEsNCJ36zHOj3rvUtRn57fZ417JchNwlcc';
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    div.innerHTML = `
-      <input type="text" class="item-type" placeholder="${t.goldType}" required>
-      <input type="number" step="0.01" class="weight" placeholder="${t.weight}" required>
-      <input type="number" class="amount" placeholder="${t.amount}" required>
-      <input type="number" step="0.1" class="rate" placeholder="${t.rate}" value="3.0" required>
-      <button type="button" class="btn-remove" onclick="this.parentElement.remove()">X</button>
-    `;
-    container.appendChild(div);
-  }
+    let customers = [];
+    let currentLang = 'ko';
+    let currentActiveCustId = null;
 
-  // 금 입력 데이터 수집
-  function getGoldItemsData(containerId) {
-    const container = document.getElementById(containerId);
-    const rows = container.querySelectorAll('.gold-row');
-    const items = [];
+    const i18n = {
+      ko: {
+        headerTitle: "HANGTHONG SOMBOON",
+        headerSubtitle: "금 담보 대출 이자 관리 시스템",
+        loginTitle: "시스템 로그인",
+        loginDesc: "고객 조회 및 관리자 접근을 위해 로그인해주세요.",
+        tabCustomer: "고객 로그인",
+        tabAdmin: "관리자 로그인",
+        lblPhone: "전화번호",
+        lblCustPw: "비밀번호",
+        btnCustLogin: "조회하기",
+        lblAdminPw: "관리자 비밀번호",
+        btnAdminLogin: "관리자 접속",
+        lblWelcome: "반갑습니다,",
+        btnLogout: "로그아웃",
+        lblLoanDate: "대출 일자",
+        lblStatusActive: "정상 이용중",
+        lblPrincipal: "총 원금 (빌린 금액)",
+        lblMonthlyInterest: "월 총 이자 비용",
+        lblTotalPaidInterest: "총 누적 납부 이자",
+        lblCustGoldItems: "맡기신 금 정보",
+        lblNextDueTitle: "다음 이자 납부 예정일",
+        lblAutoRollInfo: "* 원금을 상환하지 않는 경우 매월 동일한 일자에 월 이자가 자동으로 이월되어 안내됩니다.",
+        lblAmountDue: "납부해야 할 이자",
+        lblCustPaymentHistoryTitle: "이자 납부 이력 내역",
+        lblNoPaymentHistory: "기록된 납부 내역이 없습니다.",
+        
+        notice1Title: "[이자 납부 및 연체 규정]",
+        notice1Item1: "유예 기간: 만기일 기준 3일까지 허용",
+        notice1Item2: "연체료: 3일 초과 시 하루 8,000원",
+        notice1Item3: "금 몰수: 무연락 10일 이상 연체 시, 포기로 간주하여 사전 통보 없이 즉시 몰수",
+        
+        notice2Title: "[원금 상환 안내]",
+        notice2Item1: "현금 또는 계좌이체만 가능",
+        notice2Item2: "계좌이체 시 본인 명의 계좌만 가능 (타인 명의 송금 절대 불가)",
+        
+        notice3Title: "[원금 감액 및 이자]",
+        notice3Item1: "원금 일부 상환 시 이자 감면 (단, 첫 달은 감면 없이 전액 부과)",
+        notice3Item2: "이자율은 기준에 따라 변동될 수 있음",
+        
+        notice4Title: "[택배 배송]",
+        notice4Item1: "매장 방문이 어려울 경우 택배 배송 가능 (배송비 8,000원)",
 
-    rows.forEach(row => {
-      const item_type = row.querySelector('.item-type').value.trim();
-      const weight = parseFloat(row.querySelector('.weight').value) || 0;
-      const amount = parseInt(row.querySelector('.amount').value) || 0;
-      const rate = parseFloat(row.querySelector('.rate').value) || 0;
+        adminTitle: "관리자 대시보드",
+        lblTotalCust: "총 대출 고객 수",
+        lblTotalPrincipal: "총 빌려준 금액 (원금)",
+        lblTotalMonthlyInterest: "월 총 예상 이자 수입",
+        titleAddCust: "신규 고객 등록",
+        lblInputName: "고객 이름",
+        lblInputPhone: "전화번호 (아이디)",
+        lblInputPw: "비밀번호",
+        lblInputDate: "대출 날짜",
+        lblGoldItemsTitle: "담보 금 정보 설정",
+        btnAddGoldRow: "추가",
+        btnAddCust: "고객 등록 및 대출 정보 추가",
+        titleDailySchedule: "일자별 이자 수금 및 고객 관리",
+        thName: "고객명",
+        thPhone: "전화번호",
+        thLoanDate: "대출일",
+        thDueDate: "다음 납부 예정일",
+        thPrincipal: "원금 및 금 상세 내역",
+        thInterest: "합산 이자",
+        thAction: "관리",
+        titleEditModal: "고객 정보 수정",
+        lblEditName: "고객 이름",
+        lblEditPhone: "전화번호",
+        lblEditPw: "비밀번호",
+        lblEditDate: "대출 날짜 (납부일 연동)",
+        lblEditGoldItemsTitle: "담보 금 정보 수정",
+        lblAutoCalcInterest: "자동 계산된 합산 월 이자:",
+        btnCancelEdit: "취소",
+        btnSaveEdit: "저장하기",
+        btnEdit: "수정",
+        btnDelete: "삭제",
+        btnPayCheck: "입금 확인",
+        phType: "종류 (예: 목걸이)",
+        phWeight: "무게 (예: 10g)",
+        phAmount: "대출 원금",
+        phRate: "월 이자율 (%)",
 
-      if (item_type && amount > 0) {
-        items.push({ item_type, weight, amount, rate });
+        modalPaymentTitle: "이자 입금 및 납부 이력 관리",
+        lblPayFormTitle: "신규 입금 등록",
+        lblPayAmount: "입금 금액 (원)",
+        lblPayNote: "비고 / 메모",
+        lblPayExtendCheck: "입금 저장 시 대출 만기일을 1달 자동 연장",
+        btnSavePayment: "입금 저장 및 확인 완료",
+        lblHistoryTitle: "과거 납부 기록 목록",
+        lblHistoryLoading: "내역을 불러오는 중...",
+        lblNoHistory: "기록된 납부 내역이 없습니다.",
+        btnClosePayment: "닫기"
+      },
+      th: {
+        headerTitle: "ห้างทองสมบูรณ์ (HANGTHONG SOMBOON)",
+        headerSubtitle: "ระบบจัดการดอกเบี้ยกู้ยืมโดยใช้ทองคำเป็นประกัน",
+        loginTitle: "เข้าสู่ระบบ",
+        loginDesc: "กรุณาเข้าสู่ระบบเพื่อตรวจสอบข้อมูล หรือเข้าสู่ระบบผู้ดูแล",
+        tabCustomer: "เข้าสู่ระบบสำหรับลูกค้า",
+        tabAdmin: "เข้าสู่ระบบผู้ดูแล",
+        lblPhone: "หมายเลขโทรศัพท์",
+        lblCustPw: "รหัสผ่าน",
+        btnCustLogin: "ตรวจสอบข้อมูล",
+        lblAdminPw: "รหัสผ่านผู้ดูแลระบบ",
+        btnAdminLogin: "เข้าสู่ระบบผู้ดูแล",
+        lblWelcome: "ยินดีต้อนรับ,",
+        btnLogout: "ออกจากระบบ",
+        lblLoanDate: "วันที่กู้ยืม",
+        lblStatusActive: "สถานะปกติ",
+        lblPrincipal: "เงินต้นรวม (จำนวนเงินที่กู้)",
+        lblMonthlyInterest: "ดอกเบี้ยต่อเดือนรวม",
+        lblTotalPaidInterest: "ดอกเบี้ยที่ชำระแล้วสะสม",
+        lblCustGoldItems: "ข้อมูลทองคำที่จำนำ",
+        lblNextDueTitle: "วันครบกำหนดชำระดอกเบี้ยถัดไป",
+        lblAutoRollInfo: "* หากยังไม่ชำระเงินต้น วันกำหนดชำระดอกเบี้ยจะถูกต่ออายุโดยอัตโนมัติในวันเดียวกันของเดือนถัดไป",
+        lblAmountDue: "ดอกเบี้ยที่ต้องชำระ",
+        lblCustPaymentHistoryTitle: "ประวัติการชำระดอกเบี้ย",
+        lblNoPaymentHistory: "ไม่มีประวัติการชำระเงิน",
+        
+        notice1Title: "[ข้อกำหนดการชำระดอกเบี้ยและการค้างชำระ]",
+        notice1Item1: "ระยะเวลาผ่อนผัน: อนุญาตไม่เกิน 3 วันจากวันครบกำหนด",
+        notice1Item2: "ค่าปรับค้างชำระ: 8,000 วอน/วัน หากเกิน 3 วัน",
+        notice1Item3: "การยึดทอง: หากค้างชำระเกิน 10 วันโดยไม่ติดต่อ ถือว่าสละสิทธิ์และยึดทันทีโดยไม่แจ้งให้ทราบล่วงหน้า",
+        
+        notice2Title: "[คำแนะนำการชำระคืนเงินต้น]",
+        notice2Item1: "ชำระด้วยเงินสดหรือโอนผ่านบัญชีเท่านั้น",
+        notice2Item2: "กรณีโอนเงิน ต้องใช้บัญชีที่เป็นชื่อตนเองเท่านั้น (ห้ามโอนจากบัญชีบุคคลอื่น)",
+        
+        notice3Title: "[การลดเงินต้นและดอกเบี้ย]",
+        notice3Item1: "ลดดอกเบี้ยเมื่อชำระคืนเงินต้นบางส่วน (เว้นแต่เดือนแรกจะคิดเต็มจำนวน)",
+        notice3Item2: "อัตราดอกเบี้ยอาจเปลี่ยนแปลงได้ตามเกณฑ์",
+        
+        notice4Title: "[การจัดส่งพัสดุ]",
+        notice4Item1: "หากไม่สะดวกมาที่ร้าน สามารถจัดส่งทางพัสดุได้ (ค่าจัดส่ง 8,000 วอน)",
+
+        adminTitle: "แผงควบคุมผู้ดูแลระบบ",
+        lblTotalCust: "จำนวนลูกค้าทั้งหมด",
+        lblTotalPrincipal: "ยอดเงินต้นรวมทั้งหมด",
+        lblTotalMonthlyInterest: "รายได้ดอกเบี้ยต่อเดือนรวม",
+        titleAddCust: "ลงทะเบียนลูกค้าใหม่",
+        lblInputName: "ชื่อลูกค้า",
+        lblInputPhone: "เบอร์โทรศัพท์ (ID)",
+        lblInputPw: "รหัสผ่าน",
+        lblInputDate: "วันที่กู้ยืม",
+        lblGoldItemsTitle: "ตั้งค่าข้อมูลทองคำประกัน",
+        btnAddGoldRow: "เพิ่ม",
+        btnAddCust: "บันทึกข้อมูลลูกค้า",
+        titleDailySchedule: "ตารางกำหนดชำระดอกเบี้ยและการจัดการลูกค้า",
+        thName: "ชื่อลูกค้า",
+        thPhone: "เบอร์โทรศัพท์",
+        thLoanDate: "วันที่กู้",
+        thDueDate: "วันกำหนดชำระถัดไป",
+        thPrincipal: "เงินต้นและรายละเอียดทองคำ",
+        thInterest: "ดอกเบี้ยรวมที่ต้องชำระ",
+        thAction: "จัดการ",
+        titleEditModal: "แก้ไขข้อมูลลูกค้า",
+        lblEditName: "ชื่อลูกค้า",
+        lblEditPhone: "เบอร์โทรศัพท์",
+        lblEditPw: "รหัสผ่าน",
+        lblEditDate: "วันที่กู้ยืม",
+        lblEditGoldItemsTitle: "แก้ไขข้อมูลทองคำประกัน",
+        lblAutoCalcInterest: "ดอกเบี้ยรวมคำนวณอัตโนมัติ:",
+        btnCancelEdit: "ยกเลิก",
+        btnSaveEdit: "บันทึก",
+        btnEdit: "แก้ไข",
+        btnDelete: "ลบ",
+        btnPayCheck: "ยืนยันการชำระเงิน",
+        phType: "ประเภท (เช่น สร้อยคอ)",
+        phWeight: "น้ำหนัก (เช่น 10 กรัม)",
+        phAmount: "เงินต้นกู้",
+        phRate: "อัตราดอกเบี้ยต่อเดือน (%)",
+
+        modalPaymentTitle: "จัดการการชำระดอกเบี้ยและประวัติ",
+        lblPayFormTitle: "บันทึกการชำระเงินใหม่",
+        lblPayAmount: "จำนวนเงินที่ชำระ (วอน)",
+        lblPayNote: "หมายเหตุ",
+        lblPayExtendCheck: "ขยายวันครบกำหนดออกไป 1 เดือนอัตโนมัติเมื่อบันทึก",
+        btnSavePayment: "บันทึกและยืนยันการชำระเงิน",
+        lblHistoryTitle: "ประวัติการชำระเงินที่ผ่านมา",
+        lblHistoryLoading: "กำลังโหลดข้อมูล...",
+        lblNoHistory: "ไม่มีประวัติการชำระเงิน",
+        btnClosePayment: "ปิด"
       }
-    });
+    };
 
-    return items;
-  }
+    function setLanguage(lang) {
+      currentLang = lang;
+      const t = i18n[lang];
 
-  // 2. 두 번째 첨부 코드가 반영된 고객 및 대출 등록 함수
-  async function handleAddCustomer(e) {
-    e.preventDefault();
-    const name = document.getElementById('add-name').value.trim();
-    const phone = document.getElementById('add-phone').value.trim();
-    const pw = document.getElementById('add-pw').value.trim();
-    const loan_date = document.getElementById('add-date').value;
-    const items = getGoldItemsData('add-gold-container');
+      document.getElementById('lang-ko').className = lang === 'ko' ? "px-3 py-1 text-xs rounded font-medium bg-amber-500 text-slate-950" : "px-3 py-1 text-xs rounded font-medium text-slate-400 hover:text-white";
+      document.getElementById('lang-th').className = lang === 'th' ? "px-3 py-1 text-xs rounded font-medium bg-amber-500 text-slate-950" : "px-3 py-1 text-xs rounded font-medium text-slate-400 hover:text-white";
 
-    if (items.length === 0) {
-      alert(currentLang === 'ko' ? "최소 1개 이상의 금 정보를 올바르게 입력해주세요." : "กรุณากรอกข้อมูลทองคำอย่างน้อย 1 รายการ");
-      return;
+      document.getElementById('header-title').innerText = t.headerTitle;
+      document.getElementById('header-subtitle').innerText = t.headerSubtitle;
+      document.getElementById('login-title').innerText = t.loginTitle;
+      document.getElementById('login-desc').innerText = t.loginDesc;
+      document.getElementById('tab-customer').innerText = t.tabCustomer;
+      document.getElementById('tab-admin').innerText = t.tabAdmin;
+      document.getElementById('lbl-phone').innerText = t.lblPhone;
+      document.getElementById('lbl-cust-pw').innerText = t.lblCustPw;
+      document.getElementById('btn-cust-login').innerText = t.btnCustLogin;
+      document.getElementById('lbl-admin-pw').innerText = t.lblAdminPw;
+      document.getElementById('btn-admin-login').innerText = t.btnAdminLogin;
+      document.getElementById('lbl-welcome').innerText = t.lblWelcome;
+      document.getElementById('btn-logout').innerText = t.btnLogout;
+      document.getElementById('lbl-loan-date').innerText = t.lblLoanDate;
+      document.getElementById('lbl-status-active').innerText = t.lblStatusActive;
+      document.getElementById('lbl-principal').innerText = t.lblPrincipal;
+      document.getElementById('lbl-monthly-interest').innerText = t.lblMonthlyInterest;
+      document.getElementById('lbl-total-paid-interest').innerText = t.lblTotalPaidInterest;
+      document.getElementById('lbl-cust-gold-items').innerText = t.lblCustGoldItems;
+      document.getElementById('lbl-next-due-title').innerText = t.lblNextDueTitle;
+      document.getElementById('lbl-auto-roll-info').innerText = t.lblAutoRollInfo;
+      document.getElementById('lbl-amount-due').innerText = t.lblAmountDue;
+      document.getElementById('lbl-cust-payment-history-title').innerText = t.lblCustPaymentHistoryTitle;
+
+      document.getElementById('lbl-notice-1-title').innerText = t.notice1Title;
+      document.getElementById('lbl-notice-1-item1').innerText = t.notice1Item1;
+      document.getElementById('lbl-notice-1-item2').innerText = t.notice1Item2;
+      document.getElementById('lbl-notice-1-item3').innerText = t.notice1Item3;
+
+      document.getElementById('lbl-notice-2-title').innerText = t.notice2Title;
+      document.getElementById('lbl-notice-2-item1').innerText = t.notice2Item1;
+      document.getElementById('lbl-notice-2-item2').innerText = t.notice2Item2;
+
+      document.getElementById('lbl-notice-3-title').innerText = t.notice3Title;
+      document.getElementById('lbl-notice-3-item1').innerText = t.notice3Item1;
+      document.getElementById('lbl-notice-3-item2').innerText = t.notice3Item2;
+
+      document.getElementById('lbl-notice-4-title').innerText = t.notice4Title;
+      document.getElementById('lbl-notice-4-item1').innerText = t.notice4Item1;
+
+      document.getElementById('admin-title').innerText = t.adminTitle;
+      document.getElementById('btn-admin-logout').innerText = t.btnLogout;
+      document.getElementById('lbl-total-cust').innerText = t.lblTotalCust;
+      document.getElementById('lbl-total-principal').innerText = t.lblTotalPrincipal;
+      document.getElementById('lbl-total-monthly-interest').innerText = t.lblTotalMonthlyInterest;
+      document.getElementById('title-add-cust').innerText = t.titleAddCust;
+      document.getElementById('lbl-input-name').innerText = t.lblInputName;
+      document.getElementById('lbl-input-phone').innerText = t.lblInputPhone;
+      document.getElementById('lbl-input-pw').innerText = t.lblInputPw;
+      document.getElementById('lbl-input-date').innerText = t.lblInputDate;
+      document.getElementById('lbl-gold-items-title').innerText = t.lblGoldItemsTitle;
+      document.getElementById('btn-add-gold-row').innerText = t.btnAddGoldRow;
+      document.getElementById('btn-add-cust').innerText = t.btnAddCust;
+      document.getElementById('title-daily-schedule').innerText = t.titleDailySchedule;
+      document.getElementById('th-name').innerText = t.thName;
+      document.getElementById('th-phone').innerText = t.thPhone;
+      document.getElementById('th-loan-date').innerText = t.thLoanDate;
+      document.getElementById('th-due-date').innerText = t.thDueDate;
+      document.getElementById('th-principal').innerText = t.thPrincipal;
+      document.getElementById('th-interest').innerText = t.thInterest;
+      document.getElementById('th-action').innerText = t.thAction;
+
+      document.getElementById('title-edit-modal').innerText = t.titleEditModal;
+      document.getElementById('lbl-edit-name').innerText = t.lblEditName;
+      document.getElementById('lbl-edit-phone').innerText = t.lblEditPhone;
+      document.getElementById('lbl-edit-pw').innerText = t.lblEditPw;
+      document.getElementById('lbl-edit-date').innerText = t.lblEditDate;
+      document.getElementById('lbl-edit-gold-items-title').innerText = t.lblEditGoldItemsTitle;
+      document.getElementById('btn-edit-add-gold-row').innerText = t.btnAddGoldRow;
+      document.getElementById('lbl-auto-calc-interest').innerText = t.lblAutoCalcInterest;
+      document.getElementById('btn-cancel-edit').innerText = t.btnCancelEdit;
+      document.getElementById('btn-save-edit').innerText = t.btnSaveEdit;
+
+      document.getElementById('modal-payment-title').innerText = t.modalPaymentTitle;
+      document.getElementById('lbl-pay-form-title').innerText = t.lblPayFormTitle;
+      document.getElementById('lbl-pay-amount').innerText = t.lblPayAmount;
+      document.getElementById('lbl-pay-note').innerText = t.lblPayNote;
+      document.getElementById('lbl-pay-extend-check').innerText = t.lblPayExtendCheck;
+      document.getElementById('btn-save-payment').innerText = t.btnSavePayment;
+      document.getElementById('lbl-history-title').innerText = t.lblHistoryTitle;
+      document.getElementById('btn-close-payment').innerText = t.btnClosePayment;
+
+      if (!document.getElementById('section-admin-dashboard').classList.contains('hidden')) {
+        renderAdminDashboard();
+      }
     }
 
-    // 1. 고객 존재 여부 확인
-    let { data: existingCust, error: findError } = await supabaseClient
-      .from('customers')
-      .select('id')
-      .eq('phone', phone)
-      .maybeSingle();
+    function addGoldInputRow(containerId, data = { item_type: '', weight: '', amount: '', rate: '' }) {
+      const container = document.getElementById(containerId);
+      const row = document.createElement('div');
+      row.className = "gold-item-row grid grid-cols-12 gap-2 items-center";
 
-    if (findError) {
-      alert("고객 조회 오류: " + findError.message);
-      return;
+      const t = i18n[currentLang];
+
+      row.innerHTML = `
+        <div class="col-span-3">
+          <input type="text" placeholder="${t.phType}" value="${data.item_type || data.type || ''}" required class="gold-type w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-xs">
+        </div>
+        <div class="col-span-2">
+          <input type="text" placeholder="${t.phWeight}" value="${data.weight || ''}" required class="gold-weight w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-xs">
+        </div>
+        <div class="col-span-3">
+          <input type="number" placeholder="${t.phAmount} (원)" value="${data.amount || ''}" required oninput="calcEditInterest()" class="gold-amount w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-xs">
+        </div>
+        <div class="col-span-3">
+          <input type="number" step="0.1" placeholder="${t.phRate}" value="${data.rate || ''}" required oninput="calcEditInterest()" class="gold-rate w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-xs">
+        </div>
+        <div class="col-span-1 text-center">
+          <button type="button" onclick="removeGoldInputRow(this)" class="text-rose-400 hover:text-rose-300 p-1"><i class="fa-solid fa-trash text-xs"></i></button>
+        </div>
+      `;
+
+      container.appendChild(row);
+      calcEditInterest();
     }
 
-    let customerId;
-
-    if (existingCust) {
-      customerId = existingCust.id;
-      // 기존 고객 정보(이름, 비밀번호, 대출일자) 갱신
-      const { error: updateError } = await supabaseClient
-        .from('customers')
-        .update({ name, pw, loan_date })
-        .eq('id', customerId);
-
-      if (updateError) {
-        alert("고객 정보 갱신 실패: " + updateError.message);
+    function removeGoldInputRow(btn) {
+      const container = btn.closest('.space-y-2');
+      if (container.querySelectorAll('.gold-item-row').length <= 1) {
+        alert(currentLang === 'ko' ? "최소 1개 이상의 금 정보가 입력되어야 합니다." : "ต้องระบุข้อมูลทองอย่างน้อย 1 รายการ");
         return;
       }
-    } else {
-      // 신규 고객 생성
-      const { data: custData, error: custError } = await supabaseClient
+      btn.closest('.gold-item-row').remove();
+      calcEditInterest();
+    }
+
+    function getGoldItemsData(containerId) {
+      const container = document.getElementById(containerId);
+      const rows = container.querySelectorAll('.gold-item-row');
+      const items = [];
+
+      rows.forEach(row => {
+        const item_type = row.querySelector('.gold-type').value.trim();
+        const weight = row.querySelector('.gold-weight').value.trim();
+        const amount = parseFloat(row.querySelector('.gold-amount').value) || 0;
+        const rate = parseFloat(row.querySelector('.gold-rate').value) || 0;
+
+        if (item_type && weight && amount && rate) {
+          items.push({ item_type, weight, amount, rate });
+        }
+      });
+
+      return items;
+    }
+
+    function getNextDueDate(loanDateStr) {
+      const loanDate = new Date(loanDateStr);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      let nextDue = new Date(loanDate.getFullYear(), loanDate.getMonth() + 1, loanDate.getDate());
+
+      while (nextDue <= today) {
+        nextDue.setMonth(nextDue.getMonth() + 1);
+      }
+
+      return nextDue;
+    }
+
+    function formatDate(dateObj) {
+      const yyyy = dateObj.getFullYear();
+      const mm = String(dateObj.getMonth() + 1).padStart(2, '0');
+      const dd = String(dateObj.getDate()).padStart(2, '0');
+      return `${yyyy}-${mm}-${dd}`;
+    }
+
+    function formatCurrency(amount) {
+      return new Intl.NumberFormat().format(amount);
+    }
+
+    function switchLoginTab(tab) {
+      const custForm = document.getElementById('form-customer-login');
+      const adminForm = document.getElementById('form-admin-login');
+      const custBtn = document.getElementById('tab-cust-btn');
+      const adminBtn = document.getElementById('tab-admin-btn');
+
+      if (tab === 'customer') {
+        custForm.classList.remove('hidden');
+        adminForm.classList.add('hidden');
+        custBtn.className = "py-2.5 rounded-lg text-sm font-semibold bg-amber-500 text-slate-950 transition";
+        adminBtn.className = "py-2.5 rounded-lg text-sm font-semibold text-slate-400 hover:text-white transition";
+      } else {
+        custForm.classList.add('hidden');
+        adminForm.classList.remove('hidden');
+        adminBtn.className = "py-2.5 rounded-lg text-sm font-semibold bg-amber-500 text-slate-950 transition";
+        custBtn.className = "py-2.5 rounded-lg text-sm font-semibold text-slate-400 hover:text-white transition";
+      }
+    }
+
+    // ==========================================
+    // Supabase 연동 처리 함수
+    // ==========================================
+
+    async function loadCustomersFromSupabase() {
+      const { data, error } = await supabaseClient
         .from('customers')
-        .insert([{ name, phone, pw, loan_date }])
-        .select()
+        .select('*, gold_items(*)');
+
+      if (error) {
+        console.error('Supabase fetch error:', error);
+        return [];
+      }
+
+      return data.map(c => ({
+        id: c.id,
+        name: c.name,
+        phone: c.phone,
+        pw: c.pw,
+        loanDate: c.loan_date,
+        items: c.gold_items || []
+      }));
+    }
+
+    async function handleCustomerLogin(e) {
+      e.preventDefault();
+      const phone = document.getElementById('cust-phone').value.trim();
+      const pw = document.getElementById('cust-password').value.trim();
+
+      const { data, error } = await supabaseClient
+        .from('customers')
+        .select('*, gold_items(*)')
+        .eq('phone', phone)
+        .eq('pw', pw)
         .single();
 
-      if (custError) {
-        alert("고객 생성 실패: " + custError.message);
+      if (error || !data) {
+        alert(currentLang === 'ko' ? "일치하는 고객 정보가 없습니다." : "ไม่พบข้อมูลลูกค้าที่ตรงกัน");
         return;
       }
-      customerId = custData.id;
+
+      const user = {
+        id: data.id,
+        name: data.name,
+        phone: data.phone,
+        pw: data.pw,
+        loanDate: data.loan_date,
+        items: data.gold_items || []
+      };
+
+      await renderCustomerDashboard(user);
     }
 
-    // 2. 담보 물품 등록 (customer_id 직접 연동)
-    const goldPayload = items.map(item => ({
-      customer_id: customerId,
-      item_type: item.item_type,
-      weight: item.weight,
-      amount: item.amount,
-      rate: item.rate
-    }));
-
-    const { error: goldError } = await supabaseClient
-      .from('gold_items')
-      .insert(goldPayload);
-
-    if (goldError) {
-      alert("담보 물품 등록 실패: " + goldError.message);
-      return;
+    function calculateTotalInterest(items) {
+      return items.reduce((sum, item) => sum + Math.round(item.amount * (item.rate / 100)), 0);
     }
 
-    alert(currentLang === 'ko' ? "대출 건이 성공적으로 추가되었습니다." : "บันทึกข้อมูลเรียบร้อยแล้ว");
+    async function renderCustomerDashboard(user) {
+      const totalPrincipal = user.items.reduce((sum, item) => sum + Number(item.amount), 0);
+      const interestAmount = calculateTotalInterest(user.items);
+      const nextDue = getNextDueDate(user.loanDate);
 
-    e.target.reset();
-    document.getElementById('add-gold-container').innerHTML = "";
-    addGoldInputRow('add-gold-container');
-    loadCustomersFromSupabase();
-  }
+      document.getElementById('cust-name-display').innerText = user.name;
+      document.getElementById('cust-loan-date').innerText = user.loanDate;
+      document.getElementById('cust-principal').innerText = `${formatCurrency(totalPrincipal)} 원`;
+      document.getElementById('cust-interest-amount').innerText = `${formatCurrency(interestAmount)} 원`;
+      document.getElementById('cust-pay-amount').innerText = `${formatCurrency(interestAmount)} 원`;
 
-  // 3. Supabase 데이터 조회 및 표시
-  async function loadCustomersFromSupabase() {
-    const { data, error } = await supabaseClient
-      .from('customers')
-      .select(`
-        id,
-        name,
-        phone,
-        loan_date,
-        gold_items (
-          id,
-          item_type,
-          weight,
-          amount,
-          rate
-        )
-      `)
-      .order('id', { ascending: false });
+      const goldList = document.getElementById('cust-gold-list');
+      goldList.innerHTML = user.items.map((item, idx) => `
+        <div class="flex justify-between items-center py-1 border-b border-slate-800/50">
+          <span>${idx + 1}. ${item.item_type || item.type} (${item.weight}) - 월 ${item.rate}%</span>
+          <span class="font-semibold text-amber-400">${formatCurrency(item.amount)} 원</span>
+        </div>
+      `).join('');
 
-    if (error) {
-      console.error("데이터 로드 실패:", error);
-      return;
+      document.getElementById('cust-next-due-date').innerText = formatDate(nextDue);
+
+      // 납부 내역 및 총 이자 계산
+      const t = i18n[currentLang];
+      const historyContainer = document.getElementById('cust-payment-history-list');
+
+      const { data: logs, error } = await supabaseClient
+        .from('payment_logs')
+        .select('*')
+        .eq('customer_id', user.id)
+        .order('payment_date', { ascending: false });
+
+      if (error) {
+        console.error("Customer payment history fetch error:", error);
+        historyContainer.innerHTML = `<p class="text-xs text-rose-400 text-center py-2">내역 조회 실패</p>`;
+      } else if (!logs || logs.length === 0) {
+        document.getElementById('cust-total-paid-interest').innerText = "0 원";
+        historyContainer.innerHTML = `<p class="text-xs text-slate-500 text-center py-2">${t.lblNoPaymentHistory}</p>`;
+      } else {
+        const totalPaid = logs.reduce((sum, log) => sum + Number(log.amount), 0);
+        document.getElementById('cust-total-paid-interest').innerText = `${formatCurrency(totalPaid)} 원`;
+
+        historyContainer.innerHTML = logs.map(log => {
+          const payDate = new Date(log.payment_date).toLocaleDateString();
+          return `
+            <div class="flex justify-between items-center bg-slate-900/80 p-2.5 rounded-lg border border-slate-800">
+              <div>
+                <span class="font-bold text-emerald-400">${formatCurrency(log.amount)} 원</span>
+                <span class="text-slate-400 text-[11px] ml-2">${payDate} ${log.note ? `(${log.note})` : ''}</span>
+              </div>
+              <span class="text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">완료</span>
+            </div>
+          `;
+        }).join('');
+      }
+
+      document.getElementById('section-login').classList.add('hidden');
+      document.getElementById('section-customer-dashboard').classList.remove('hidden');
     }
 
-    const tbody = document.getElementById('customer-list-body');
-    tbody.innerHTML = '';
+    function handleAdminLogin(e) {
+      e.preventDefault();
+      const pw = document.getElementById('admin-password').value.trim();
 
-    data.forEach(cust => {
-      const tr = document.createElement('tr');
+      if (pw === "jimmy0309!") {
+        renderAdminDashboard();
+      } else {
+        alert(currentLang === 'ko' ? "비밀번호가 올바르지 않습니다." : "รหัสผ่านไม่ถูกต้อง");
+      }
+    }
+
+    async function renderAdminDashboard() {
+      document.getElementById('section-login').classList.add('hidden');
+      document.getElementById('section-admin-dashboard').classList.remove('hidden');
+
+      customers = await loadCustomersFromSupabase();
+
+      let totalPrincipal = 0;
+      let totalInterest = 0;
+
+      const tbody = document.getElementById('table-schedule-body');
+      tbody.innerHTML = "";
+
+      const t = i18n[currentLang];
+
+      const sortedCustomers = [...customers].sort((a, b) => {
+        return getNextDueDate(a.loanDate) - getNextDueDate(b.loanDate);
+      });
+
+      sortedCustomers.forEach(c => {
+        const custPrincipal = c.items.reduce((sum, item) => sum + Number(item.amount), 0);
+        const interest = calculateTotalInterest(c.items);
+        const nextDue = getNextDueDate(c.loanDate);
+
+        totalPrincipal += custPrincipal;
+        totalInterest += interest;
+
+        const goldDetails = c.items.map(item => `• ${item.item_type || item.type} (${item.weight}, ${item.rate}%): ${formatCurrency(item.amount)} 원`).join('<br>');
+
+        const row = document.createElement('tr');
+        row.className = "hover:bg-slate-900/50 border-b border-slate-800";
+        row.innerHTML = `
+          <td class="py-3 px-4 font-semibold text-amber-400 align-top">${c.name}</td>
+          <td class="py-3 px-4 align-top">${c.phone}</td>
+          <td class="py-3 px-4 align-top">${c.loanDate}</td>
+          <td class="py-3 px-4 font-bold text-white align-top">${formatDate(nextDue)}</td>
+          <td class="py-3 px-4 align-top">
+            <div class="font-bold text-white mb-1">합계: ${formatCurrency(custPrincipal)} 원</div>
+            <div class="text-xs text-slate-400 leading-relaxed">${goldDetails}</div>
+          </td>
+          <td class="py-3 px-4 text-right font-bold text-amber-400 align-top">${formatCurrency(interest)} 원</td>
+          <td class="py-3 px-4 text-center align-top">
+            <div class="flex flex-col space-y-1">
+              <button onclick="openPaymentModal(${c.id})" class="px-2 py-1 bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 hover:bg-emerald-500/40 rounded text-xs font-bold">
+                <i class="fa-solid fa-check mr-1"></i>${t.btnPayCheck}
+              </button>
+              <div class="flex justify-center space-x-1">
+                <button onclick="openEditModal(${c.id})" class="px-2 py-1 bg-amber-500/20 text-amber-400 border border-amber-500/40 hover:bg-amber-500/40 rounded text-xs">
+                  <i class="fa-solid fa-pen-to-square mr-1"></i>${t.btnEdit}
+                </button>
+                <button onclick="deleteCustomer(${c.id})" class="px-2 py-1 bg-rose-500/20 text-rose-400 border border-rose-500/40 hover:bg-rose-500/40 rounded text-xs">
+                  <i class="fa-solid fa-trash mr-1"></i>${t.btnDelete}
+                </button>
+              </div>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(row);
+      });
+
+      document.getElementById('stat-total-cust').innerText = `${customers.length} ${currentLang === 'ko' ? '명' : 'คน'}`;
+      document.getElementById('stat-total-principal').innerText = `${formatCurrency(totalPrincipal)} 원`;
+      document.getElementById('stat-total-interest').innerText = `${formatCurrency(totalInterest)} 원`;
+
+      const container = document.getElementById('add-gold-container');
+      if (container.children.length === 0) {
+        addGoldInputRow('add-gold-container');
+      }
+    }
+
+    // ==========================================
+    // 입금 관리 및 과거 납부 이력 모달 관련 함수
+    // ==========================================
+
+    async function openPaymentModal(custId) {
+      currentActiveCustId = custId;
+      const customer = customers.find(c => c.id === custId);
+      if (!customer) return;
+
+      const interestAmount = calculateTotalInterest(customer.items);
+
+      // 모달 필드 채우기
+      document.getElementById('modal-payment-cust-name').innerText = `${customer.name} (${customer.phone})`;
+      document.getElementById('pay-input-amount').value = interestAmount;
+      document.getElementById('pay-input-note').value = `${new Date().getMonth() + 1}월 이자 입금`;
+      document.getElementById('pay-extend-date').checked = true;
+
+      document.getElementById('modal-payment').classList.remove('hidden');
+
+      // 과거 납부 기록 불러오기
+      await loadPaymentHistory(custId);
+    }
+
+    function closePaymentModal() {
+      document.getElementById('modal-payment').classList.add('hidden');
+      currentActiveCustId = null;
+    }
+
+    async function loadPaymentHistory(custId) {
+      const historyContainer = document.getElementById('payment-history-list');
+      const t = i18n[currentLang];
+      historyContainer.innerHTML = `<p class="text-xs text-slate-500 text-center py-4">${t.lblHistoryLoading}</p>`;
+
+      const { data, error } = await supabaseClient
+        .from('payment_logs')
+        .select('*')
+        .eq('customer_id', custId)
+        .order('payment_date', { ascending: false });
+
+      if (error) {
+        console.error("Payment history fetch error:", error);
+        historyContainer.innerHTML = `<p class="text-xs text-rose-400 text-center py-4">조회 에러: ${error.message}</p>`;
+        return;
+      }
+
+      if (!data || data.length === 0) {
+        historyContainer.innerHTML = `<p class="text-xs text-slate-500 text-center py-4">${t.lblNoHistory}</p>`;
+        return;
+      }
+
+      historyContainer.innerHTML = data.map(log => {
+        const payDate = new Date(log.payment_date).toLocaleDateString();
+        return `
+          <div class="flex justify-between items-center bg-slate-900 p-3 rounded-lg border border-slate-800 text-xs">
+            <div>
+              <div class="font-bold text-emerald-400">${formatCurrency(log.amount)} 원</div>
+              <div class="text-slate-400 text-[11px] mt-0.5">${payDate} ${log.note ? `| ${log.note}` : ''}</div>
+            </div>
+            <button onclick="deletePaymentLog(${log.id})" class="px-2 py-1 bg-rose-500/10 text-rose-400 border border-rose-500/30 hover:bg-rose-500/30 rounded text-[10px]">
+              <i class="fa-solid fa-trash mr-1"></i>삭제
+            </button>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function handleSavePayment(e) {
+      e.preventDefault();
+      if (!currentActiveCustId) return;
+
+      const customer = customers.find(c => c.id === currentActiveCustId);
+      const amount = Number(document.getElementById('pay-input-amount').value);
+      const note = document.getElementById('pay-input-note').value.trim();
+      const shouldExtend = document.getElementById('pay-extend-date').checked;
+
+      // 1. payment_logs 테이블에 입력 내역 추가
+      const { error: logError } = await supabaseClient
+        .from('payment_logs')
+        .insert([{
+          customer_id: currentActiveCustId,
+          amount: amount,
+          note: note || '이자 입금'
+        }]);
+
+      if (logError) {
+        alert("입금 기록 저장 실패: " + logError.message);
+        return;
+      }
+
+      // 2. 만기일 1달 연장 옵션 체크 시 loan_date 업데이트
+      if (shouldExtend && customer) {
+        const currDate = new Date(customer.loanDate);
+        currDate.setMonth(currDate.getMonth() + 1);
+        const newLoanDate = formatDate(currDate);
+
+        const { error: updateError } = await supabaseClient
+          .from('customers')
+          .update({ loan_date: newLoanDate })
+          .eq('id', currentActiveCustId);
+
+        if (updateError) {
+          alert("만기일 연장 실패: " + updateError.message);
+        }
+      }
+
+      alert(currentLang === 'ko' ? "입금 내역이 성공적으로 저장되었습니다." : "บันทึกการชำระเงินเรียบร้อยแล้ว");
       
-      const goldListStr = (cust.gold_items || []).map(g => 
-        `<span class="badge">${g.item_type} / ${g.weight}g / ${g.amount.toLocaleString()}원 (${g.rate}%)</span>`
-      ).join(' ');
-
-      tr.innerHTML = `
-        <td>${cust.name}</td>
-        <td>${cust.phone}</td>
-        <td>${cust.loan_date || '-'}</td>
-        <td>${goldListStr || '없음'}</td>
-        <td>
-          <button class="btn-remove" onclick="handleDeleteCustomer(${cust.id})">${translations[currentLang].delete}</button>
-        </td>
-      `;
-      tbody.appendChild(tr);
-    });
-  }
-
-  // 4. 고객 삭제 함수
-  async function handleDeleteCustomer(id) {
-    if (!confirm(currentLang === 'ko' ? "정말 삭제하시겠습니까?" : "คุณแน่ใจหรือไม่ที่จะลบ?")) return;
-
-    await supabaseClient.from('gold_items').delete().eq('customer_id', id);
-    const { error } = await supabaseClient.from('customers').delete().eq('id', id);
-
-    if (error) {
-      alert("삭제 실패: " + error.message);
-    } else {
-      loadCustomersFromSupabase();
+      // 모달 내 과거 목록 및 대시보드 갱신
+      await loadPaymentHistory(currentActiveCustId);
+      renderAdminDashboard();
     }
-  }
 
-  // 초기화
-  window.onload = function() {
-    addGoldInputRow('add-gold-container');
-    loadCustomersFromSupabase();
-  };
-</script>
+    async function deletePaymentLog(logId) {
+      const confirmMsg = currentLang === 'ko' ? "해당 납부 기록을 삭제하시겠습니까?" : "คุณต้องการลบรายการชำระเงินนี้ใช่หรือไม่?";
+      if (!confirm(confirmMsg)) return;
 
+      const { error } = await supabaseClient
+        .from('payment_logs')
+        .delete()
+        .eq('id', logId);
+
+      if (error) {
+        alert("삭제 실패: " + error.message);
+        return;
+      }
+
+      await loadPaymentHistory(currentActiveCustId);
+    }
+
+    // ==========================================
+    // 대출 등록 로직 (2번 첨부파일 반영)
+    // ==========================================
+    async function handleAddCustomer(e) {
+      e.preventDefault();
+      const name = document.getElementById('add-name').value.trim();
+      const phone = document.getElementById('add-phone').value.trim();
+      const pw = document.getElementById('add-pw').value.trim();
+      const loan_date = document.getElementById('add-date').value;
+      const items = getGoldItemsData('add-gold-container');
+
+      if (items.length === 0) {
+        alert(currentLang === 'ko' ? "최소 1개 이상의 금 정보를 올바르게 입력해주세요." : "กรุณากรอกข้อมูลทองคำอย่างน้อย 1 รายการ");
+        return;
+      }
+
+      // 1. 고객 존재 여부 확인
+      let { data: existingCust, error: findError } = await supabaseClient
+        .from('customers')
+        .select('id')
+        .eq('phone', phone)
+        .maybeSingle();
+
+      if (findError) {
+        alert("고객 조회 오류: " + findError.message);
+        return;
+      }
+
+      let customerId;
+
+      if (existingCust) {
+        customerId = existingCust.id;
+        // 기존 고객 정보(이름, 비밀번호, 대출일자) 갱신
+        const { error: updateError } = await supabaseClient
+          .from('customers')
+          .update({ name, pw, loan_date })
+          .eq('id', customerId);
+
+        if (updateError) {
+          alert("고객 정보 갱신 실패: " + updateError.message);
+          return;
+        }
+      } else {
+        // 신규 고객 생성
+        const { data: custData, error: custError } = await supabaseClient
+          .from('customers')
+          .insert([{ name, phone, pw, loan_date }])
+          .select()
+          .single();
+
+        if (custError) {
+          alert("고객 생성 실패: " + custError.message);
+          return;
+        }
+        customerId = custData.id;
+      }
+
+      // 2. 담보 물품 등록 (customer_id 직접 연동)
+      const goldPayload = items.map(item => ({
+        customer_id: customerId,
+        item_type: item.item_type,
+        weight: item.weight,
+        amount: item.amount,
+        rate: item.rate
+      }));
+
+      const { error: goldError } = await supabaseClient
+        .from('gold_items')
+        .insert(goldPayload);
+
+      if (goldError) {
+        alert("담보 물품 등록 실패: " + goldError.message);
+        return;
+      }
+
+      alert(currentLang === 'ko' ? "대출 건이 성공적으로 추가되었습니다." : "บันทึกข้อมูลเรียบร้อยแล้ว");
+
+      e.target.reset();
+      document.getElementById('add-gold-container').innerHTML = "";
+      addGoldInputRow('add-gold-container');
+      renderAdminDashboard();
+    }
+
+    function openEditModal(custId) {
+      const customer = customers.find(c => c.id === custId);
+      if (!customer) return;
+
+      document.getElementById('edit-id').value = customer.id;
+      document.getElementById('edit-name').value = customer.name;
+      document.getElementById('edit-phone').value = customer.phone;
+      document.getElementById('edit-pw').value = customer.pw;
+      document.getElementById('edit-date').value = customer.loanDate;
+
+      const editContainer = document.getElementById('edit-gold-container');
+      editContainer.innerHTML = "";
+
+      customer.items.forEach(item => {
+        addGoldInputRow('edit-gold-container', item);
+      });
+
+      calcEditInterest();
+
+      document.getElementById('modal-edit-customer').classList.remove('hidden');
+    }
+
+    function calcEditInterest() {
+      const items = getGoldItemsData('edit-gold-container');
+      const interest = calculateTotalInterest(items);
+
+      document.getElementById('edit-calculated-interest').innerText = `${formatCurrency(interest)} 원`;
+    }
+
+    function closeEditModal() {
+      document.getElementById('modal-edit-customer').classList.add('hidden');
+    }
+
+    async function handleUpdateCustomer(e) {
+      e.preventDefault();
+      const id = Number(document.getElementById('edit-id').value);
+      const items = getGoldItemsData('edit-gold-container');
+
+      if (items.length === 0) {
+        alert(currentLang === 'ko' ? "최소 1개 이상의 금 정보를 올바르게 입력해주세요." : "กรุณากรอกข้อมูลทองคำอย่างน้อย 1 รายการ");
+        return;
+      }
+
+      const { error: custError } = await supabaseClient
+        .from('customers')
+        .update({
+          name: document.getElementById('edit-name').value.trim(),
+          phone: document.getElementById('edit-phone').value.trim(),
+          pw: document.getElementById('edit-pw').value.trim(),
+          loan_date: document.getElementById('edit-date').value
+        })
+        .eq('id', id);
+
+      if (custError) {
+        alert("고객 수정 오류: " + custError.message);
+        return;
+      }
+
+      await supabaseClient.from('gold_items').delete().eq('customer_id', id);
+
+      const goldPayload = items.map(item => ({
+        customer_id: id,
+        item_type: item.item_type,
+        weight: item.weight,
+        amount: item.amount,
+        rate: item.rate
+      }));
+
+      const { error: goldError } = await supabaseClient
+        .from('gold_items')
+        .insert(goldPayload);
+
+      if (goldError) {
+        alert("담보 정보 수정 오류: " + goldError.message);
+        return;
+      }
+
+      closeEditModal();
+      renderAdminDashboard();
+      alert(currentLang === 'ko' ? "고객 정보가 수정되었습니다." : "แก้ไขข้อมูลลูกค้าเรียบร้อยแล้ว");
+    }
+
+    async function deleteCustomer(custId) {
+      const customer = customers.find(c => c.id === custId);
+      if (!customer) return;
+
+      const confirmMsg = currentLang === 'ko' 
+        ? `'${customer.name}' 고객의 정보를 정말 삭제하시겠습니까?`
+        : `คุณต้องการลบข้อมูลของ '${customer.name}' ใช่หรือไม่?`;
+
+      if (confirm(confirmMsg)) {
+        const { error } = await supabaseClient
+          .from('customers')
+          .delete()
+          .eq('id', custId);
+
+        if (error) {
+          alert("삭제 오류: " + error.message);
+          return;
+        }
+
+        renderAdminDashboard();
+      }
+    }
+
+    function logout() {
+      document.getElementById('section-customer-dashboard').classList.add('hidden');
+      document.getElementById('section-admin-dashboard').classList.add('hidden');
+      document.getElementById('section-login').classList.remove('hidden');
+    }
+  </script>
 </body>
 </html>
