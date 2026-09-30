@@ -1108,6 +1108,9 @@
       await loadPaymentHistory(currentActiveCustId);
     }
 
+    // ==========================================
+    // 대출 등록 로직 (수정 적용됨)
+    // ==========================================
     async function handleAddCustomer(e) {
       e.preventDefault();
       const name = document.getElementById('add-name').value.trim();
@@ -1121,8 +1124,8 @@
         return;
       }
 
-      // 1. 기존 고객 등록 여부 확인
-      const { data: existingCust, error: findError } = await supabaseClient
+      // 1. 고객 존재 여부 확인
+      let { data: existingCust, error: findError } = await supabaseClient
         .from('customers')
         .select('id')
         .eq('phone', phone)
@@ -1136,35 +1139,44 @@
       let customerId;
 
       if (existingCust) {
-        // 2-A. 기존 고객 존재 시: ID 재사용 및 고객 정보 업데이트
         customerId = existingCust.id;
+        // 기존 고객 정보(이름, 비밀번호) 갱신
         const { error: updateError } = await supabaseClient
           .from('customers')
-          .update({ name, pw, loan_date })
+          .update({ name, pw })
           .eq('id', customerId);
 
         if (updateError) {
-          alert("기존 고객 정보 갱신 오류: " + updateError.message);
+          alert("고객 정보 갱신 실패: " + updateError.message);
           return;
         }
       } else {
-        // 2-B. 신규 고객일 시: customers 테이블에 데이터 추가
+        // 신규 고객 생성
         const { data: custData, error: custError } = await supabaseClient
           .from('customers')
-          .insert([{ name, phone, pw, loan_date }])
+          .insert([{ name, phone, pw }])
           .select()
           .single();
 
         if (custError) {
-          alert("고객 등록 오류: " + custError.message);
+          alert("고객 생성 실패: " + custError.message);
           return;
         }
         customerId = custData.id;
       }
 
-      // 3. 담보 정보 등록 (기존 또는 신규 customer_id 연동)
+      // 2. 신규 대출 건(loans) 생성 (핵심: 대출일자별 레코드 생성)
+      const { data: loanData, error: loanError } = await supabaseClient
+        .from('loans')
+        .insert([{ customer_id: customerId, loan_date: loan_date }])
+        .select()
+        .single();
+
+      if (loanError) return alert("대출 등록 실패: " + loanError.message);
+
+      // 3. 해당 대출 건(loan_id)에 담보 물품 연결
       const goldPayload = items.map(item => ({
-        customer_id: customerId,
+        loan_id: loanData.id,
         item_type: item.item_type,
         weight: item.weight,
         amount: item.amount,
@@ -1176,13 +1188,11 @@
         .insert(goldPayload);
 
       if (goldError) {
-        alert("담보 정보 등록 오류: " + goldError.message);
+        alert("담보 물품 등록 실패: " + goldError.message);
         return;
       }
 
-      alert(currentLang === 'ko' 
-        ? (existingCust ? "기존 고객 정보에 신규 담보 대출 내역이 추가되었습니다." : "신규 고객이 등록되었습니다.") 
-        : "บันทึกข้อมูลเรียบร้อยแล้ว");
+      alert(currentLang === 'ko' ? "대출 건이 성공적으로 추가되었습니다." : "บันทึกข้อมูลเรียบร้อยแล้ว");
 
       e.target.reset();
       document.getElementById('add-gold-container').innerHTML = "";
