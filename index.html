@@ -389,6 +389,7 @@
 
     let customers = [];
     let currentLang = 'ko';
+    let currentUser = null; // 현재 로그인한 고객 정보 추적용
     let currentActiveCustId = null;
     let currentActiveDueDate = null;
     let currentEditCustId = null;
@@ -692,6 +693,11 @@
       document.getElementById('lbl-history-title').innerText = t.lblHistoryTitle;
       document.getElementById('btn-close-payment').innerText = t.btnClosePayment;
 
+      // 언어 변경 시 현재 로그인한 고객 대시보드가 열려 있다면 실시간 재렌더링
+      if (currentUser && !document.getElementById('section-customer-dashboard').classList.contains('hidden')) {
+        renderCustomerDashboard(currentUser);
+      }
+
       if (!document.getElementById('section-admin-dashboard').classList.contains('hidden')) {
         renderAdminDashboard();
       }
@@ -847,7 +853,7 @@
         return;
       }
 
-      const user = {
+      currentUser = {
         id: data.id,
         name: data.name,
         phone: data.phone,
@@ -855,7 +861,7 @@
         items: data.gold_items || []
       };
 
-      await renderCustomerDashboard(user);
+      await renderCustomerDashboard(currentUser);
     }
 
     function calculateTotalInterest(items) {
@@ -863,6 +869,7 @@
     }
 
     async function renderCustomerDashboard(user) {
+      currentUser = user; // 현재 로그인된 사용자 유지
       const totalPrincipal = user.items.reduce((sum, item) => sum + Number(item.amount), 0);
       const interestAmount = calculateTotalInterest(user.items);
       const t = i18n[currentLang];
@@ -1054,7 +1061,7 @@
           row.innerHTML = `
             <td class="py-3 px-3 align-middle">${nameCellHtml}</td>
             <td class="py-3 px-3 align-middle text-slate-300">${c.phone}</td>
-            <td class="py-3 px-3 text-slate-500 align-middle">- (거래완료)</td>
+            <td class="py-3 px-3 text-slate-500 align-middle">- (${currentLang === 'ko' ? '거래완료' : 'เสร็จสิ้น'})</td>
             <td class="py-3 px-3 text-slate-500 align-middle">-</td>
             <td class="py-3 px-3 text-slate-500 align-middle">-</td>
             <td class="py-3 px-3 text-slate-500 align-middle">-</td>
@@ -1492,6 +1499,7 @@
     }
 
     function logout() {
+      currentUser = null;
       document.getElementById('section-customer-dashboard').classList.add('hidden');
       document.getElementById('section-admin-dashboard').classList.add('hidden');
       document.getElementById('section-login').classList.remove('hidden');
