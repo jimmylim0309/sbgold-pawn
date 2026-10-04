@@ -6,7 +6,7 @@
   <title>금 담보 대출 / 전당포 관리 시스템</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-  <!-- Supabase JS SDK 추가 -->
+  <!-- Supabase JS SDK -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap');
@@ -19,10 +19,13 @@
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between">
 
+  <!-- 플로팅 토스트 알림 컨테이너 -->
+  <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col space-y-2 max-w-sm pointer-events-none"></div>
+
   <!-- 헤더 -->
   <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-50 px-4 py-3 flex justify-between items-center">
     <div class="flex items-center space-x-3">
-      <img src="./logo.jpg" alt="HANGTHONG SOMBOON Logo" class="w-10 h-10 rounded-full object-cover border border-amber-500/50 shadow-lg">
+      <img src="./logo.jpg" alt="HANGTHONG SOMBOON Logo" class="w-10 h-10 rounded-full object-cover border border-amber-500/50 shadow-lg" onerror="this.src='https://via.placeholder.com/40/d4af37/000000?text=HS'">
       <div>
         <h1 class="text-lg font-bold text-amber-400 leading-tight" id="header-title">HANGTHONG SOMBOON</h1>
         <p class="text-xs text-slate-400" id="header-subtitle">금 담보 대출 이자 관리 시스템</p>
@@ -125,8 +128,8 @@
         <div class="bg-gradient-to-r from-amber-600 to-amber-700 text-slate-950 p-6 rounded-xl shadow-lg flex flex-col md:flex-row justify-between items-center gap-4">
           <div>
             <span class="text-xs font-bold uppercase tracking-wider text-slate-900" id="lbl-next-due-title">가장 가까운 이자 납부 예정일</span>
-            <h3 class="text-3xl font-black text-slate-950 mt-1" id="cust-next-due-date">-</h3>
-            <p class="text-xs text-slate-900/80 mt-2" id="lbl-auto-roll-info">* 담보 물건별 대출일자에 맞춰 매월 해당 일자에 이자가 납부되어야 합니다.</p>
+            <h3 class="text-3xl font-black text-slate-950 mt-1 flex items-center gap-2" id="cust-next-due-date">-</h3>
+            <p class="text-xs text-slate-900/90 font-medium mt-2" id="lbl-auto-roll-info">* 관리자가 실제 입금을 확인(승인)하기 전까지는 이자 납부 예정일이 다음 달로 이월되지 않습니다.</p>
           </div>
           <div class="bg-slate-950 text-amber-400 px-6 py-4 rounded-xl w-full md:w-auto text-center border border-amber-500/30">
             <span class="text-xs text-slate-400 block" id="lbl-amount-due">월 합산 납부 이자</span>
@@ -375,13 +378,41 @@
     </div>
   </div>
 
+  <!-- 사용자 정의 확인 모달 (alert/confirm 대체용) -->
+  <div id="modal-confirm" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden">
+    <div class="gold-card w-full max-w-sm p-6 rounded-2xl shadow-2xl space-y-4 border border-amber-500/40 text-center">
+      <div class="w-12 h-12 rounded-full bg-amber-500/10 border border-amber-500/30 flex items-center justify-center mx-auto text-amber-400 text-xl">
+        <i class="fa-solid fa-circle-question"></i>
+      </div>
+      <h3 class="text-base font-bold text-amber-400" id="confirm-title">확인</h3>
+      <p class="text-xs text-slate-300 leading-relaxed" id="confirm-message">-</p>
+      <div class="flex space-x-2 pt-2">
+        <button id="confirm-btn-cancel" class="w-1/2 py-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-xs font-semibold text-slate-300">취소</button>
+        <button id="confirm-btn-ok" class="w-1/2 gold-btn py-2 rounded-lg text-xs font-bold">확인</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 비밀번호 입력 프롬프트 모달 -->
+  <div id="modal-prompt" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden">
+    <div class="gold-card w-full max-w-sm p-6 rounded-2xl shadow-2xl space-y-4 border border-amber-500/40">
+      <h3 class="text-base font-bold text-amber-400" id="prompt-title">관리자 확인</h3>
+      <p class="text-xs text-slate-300" id="prompt-message">-</p>
+      <input type="password" id="prompt-input" placeholder="••••" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-sm text-slate-100 focus:outline-none focus:border-amber-500">
+      <div class="flex space-x-2 pt-2">
+        <button id="prompt-btn-cancel" class="w-1/2 py-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-xs font-semibold text-slate-300">취소</button>
+        <button id="prompt-btn-ok" class="w-1/2 gold-btn py-2 rounded-lg text-xs font-bold">확인</button>
+      </div>
+    </div>
+  </div>
+
   <footer class="border-t border-slate-800 bg-slate-900 py-4 text-center text-xs text-slate-500">
     <p>© 2026 HANGTHONG SOMBOON. All rights reserved.</p>
   </footer>
 
   <script>
     // ==========================================
-    // Supabase 설정
+    // Supabase 설정 및 상태 관리
     // ==========================================
     const SUPABASE_URL = 'https://guwkdfqvljlzgjdpnonh.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd1d2tkZnF2bGpsemdqZHBub25oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkyMDg2ODEsImV4cCI6MjEwNDc4NDY4MX0.Q3ekrqKEIwEsNCJ36zHOj3rvUtRn57fZ417JchNwlcc';
@@ -389,11 +420,123 @@
 
     let customers = [];
     let currentLang = 'ko';
-    let currentUser = null; // 현재 로그인한 고객 정보 추적용
+    let currentUser = null; 
     let currentActiveCustId = null;
     let currentActiveDueDate = null;
     let currentEditCustId = null;
     let currentEditDueDate = null;
+
+    // 토스트 및 대화상자 유틸리티
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toast-container');
+      if (!container) return;
+
+      const toast = document.createElement('div');
+      const bgClass = type === 'error' ? 'bg-rose-900/90 border-rose-500 text-rose-100' :
+                      type === 'success' ? 'bg-emerald-900/90 border-emerald-500 text-emerald-100' :
+                      'bg-amber-900/90 border-amber-500 text-amber-100';
+
+      const iconClass = type === 'error' ? 'fa-circle-xmark text-rose-400' :
+                        type === 'success' ? 'fa-circle-check text-emerald-400' :
+                        'fa-circle-info text-amber-400';
+
+      toast.className = `pointer-events-auto flex items-center space-x-3 px-4 py-3 rounded-xl border backdrop-blur-md shadow-xl transition-all duration-300 transform translate-y-[-10px] opacity-0 ${bgClass}`;
+      toast.innerHTML = `
+        <i class="fa-solid ${iconClass} text-lg"></i>
+        <span class="text-xs font-medium">${message}</span>
+      `;
+
+      container.appendChild(toast);
+
+      setTimeout(() => {
+        toast.classList.remove('translate-y-[-10px]', 'opacity-0');
+      }, 10);
+
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-y-[-10px]');
+        setTimeout(() => toast.remove(), 300);
+      }, 3200);
+    }
+
+    function showConfirm(message, title = null) {
+      return new Promise((resolve) => {
+        const modal = document.getElementById('modal-confirm');
+        const msgEl = document.getElementById('confirm-message');
+        const titleEl = document.getElementById('confirm-title');
+        const cancelBtn = document.getElementById('confirm-btn-cancel');
+        const okBtn = document.getElementById('confirm-btn-ok');
+
+        titleEl.innerText = title || (currentLang === 'ko' ? '확인 요청' : 'ยืนยัน');
+        msgEl.innerText = message;
+
+        cancelBtn.innerText = currentLang === 'ko' ? '취소' : 'ยกเลิก';
+        okBtn.innerText = currentLang === 'ko' ? '확인' : 'ตกลง';
+
+        modal.classList.remove('hidden');
+
+        const handleOk = () => {
+          modal.classList.add('hidden');
+          cleanup();
+          resolve(true);
+        };
+
+        const handleCancel = () => {
+          modal.classList.add('hidden');
+          cleanup();
+          resolve(false);
+        };
+
+        const cleanup = () => {
+          okBtn.removeEventListener('click', handleOk);
+          cancelBtn.removeEventListener('click', handleCancel);
+        };
+
+        okBtn.addEventListener('click', handleOk);
+        cancelBtn.addEventListener('click', handleCancel);
+      });
+    }
+
+    function showPrompt(message, title = null) {
+      return new Promise((resolve) => {
+        const modal = document.getElementById('modal-prompt');
+        const msgEl = document.getElementById('prompt-message');
+        const titleEl = document.getElementById('prompt-title');
+        const inputEl = document.getElementById('prompt-input');
+        const cancelBtn = document.getElementById('prompt-btn-cancel');
+        const okBtn = document.getElementById('prompt-btn-ok');
+
+        titleEl.innerText = title || (currentLang === 'ko' ? '관리자 비밀번호 확인' : 'ยืนยันรหัสผ่านผู้ดูแล');
+        msgEl.innerText = message;
+        inputEl.value = '';
+
+        cancelBtn.innerText = currentLang === 'ko' ? '취소' : 'ยกเลิก';
+        okBtn.innerText = currentLang === 'ko' ? '확인' : 'ตกลง';
+
+        modal.classList.remove('hidden');
+        inputEl.focus();
+
+        const handleOk = () => {
+          const val = inputEl.value;
+          modal.classList.add('hidden');
+          cleanup();
+          resolve(val);
+        };
+
+        const handleCancel = () => {
+          modal.classList.add('hidden');
+          cleanup();
+          resolve(null);
+        };
+
+        const cleanup = () => {
+          okBtn.removeEventListener('click', handleOk);
+          cancelBtn.removeEventListener('click', handleCancel);
+        };
+
+        okBtn.addEventListener('click', handleOk);
+        cancelBtn.addEventListener('click', handleCancel);
+      });
+    }
 
     const i18n = {
       ko: {
@@ -419,10 +562,11 @@
         lblTotalPaidInterest: "총 누적 납부 이자",
         lblCustGoldItems: "맡기신 담보 물건 및 납부예정일별 이자 정보",
         lblNextDueTitle: "이자 납부 예정일",
-        lblAutoRollInfo: "* 담보 물건별 대출일자에 맞춰 매월 해당 일자에 이자가 납부되어야 합니다.",
+        lblAutoRollInfo: "* 관리자가 실제 입금을 확인(승인)하기 전까지는 이자 납부 예정일이 다음 달로 이월되지 않습니다.",
         lblAmountDue: "월 합산 납부 이자",
         lblCustPaymentHistoryTitle: "이자 납부 이력 내역",
         lblNoPaymentHistory: "기록된 납부 내역이 없습니다.",
+        lblOverdue: "연체(미납)",
         
         lblDueDatePrefix: "납부예정일",
         lblGroupTotalInterest: "해당일 납부 합산 이자",
@@ -521,10 +665,11 @@
         lblTotalPaidInterest: "ดอกเบี้ยที่ชำระแล้วสะสม",
         lblCustGoldItems: "ข้อมูลทองคำประกันและวันจ่ายดอกเบี้ยแยกตามรายการ",
         lblNextDueTitle: "วันกำหนดชำระดอกเบี้ย",
-        lblAutoRollInfo: "* วันกำหนดชำระดอกเบี้ยจะคำนวณตามวันที่กู้ยืมของหลักประกันแต่ละรายการ",
+        lblAutoRollInfo: "* วันกำหนดชำระดอกเบี้ยจะไม่ถูกเลื่อนไปเดือนถัดไปจนกว่าผู้ดูแลระบบจะยืนยันการรับชำระเงิน",
         lblAmountDue: "ดอกเบี้ยรวมที่ต้องชำระ",
         lblCustPaymentHistoryTitle: "ประวัติการชำระดอกเบี้ย",
         lblNoPaymentHistory: "ไม่มีประวัติการชำระเงิน",
+        lblOverdue: "ค้างชำระ",
         
         lblDueDatePrefix: "วันจ่ายดอกเบี้ย",
         lblGroupTotalInterest: "ดอกเบี้ยรวมที่จะจ่ายในวันนั้น",
@@ -547,7 +692,7 @@
         notice3Item2: "อัตราดอกเบี้ยอาจเปลี่ยนแปลงได้ตามเกณฑ์",
         
         notice4Title: "[การจัดส่งพัสดุ]",
-        notice4Item1: "หากไม่สะดวกมาที่ร้าน สามารถจัดส่งทางพัสดุได้ (ค่าจัดส่ง 7,000 วอน)",
+        notice4Item1: "หากไม่สะดวกมาที่ร้าน สามารถจัดส่งทางพัสดุได้ (ค่าจัดส่ง 8,000 วอน)",
 
         adminTitle: "แผงควบคุมผู้ดูแลระบบ",
         lblTotalCust: "จำนวนลูกค้าทั้งหมด",
@@ -693,7 +838,6 @@
       document.getElementById('lbl-history-title').innerText = t.lblHistoryTitle;
       document.getElementById('btn-close-payment').innerText = t.btnClosePayment;
 
-      // 언어 변경 시 현재 로그인한 고객 대시보드가 열려 있다면 실시간 재렌더링
       if (currentUser && !document.getElementById('section-customer-dashboard').classList.contains('hidden')) {
         renderCustomerDashboard(currentUser);
       }
@@ -737,10 +881,10 @@
       calcEditInterest();
     }
 
-    function removeGoldInputRow(btn) {
+    async function removeGoldInputRow(btn) {
       const container = btn.closest('.space-y-2');
       if (container.querySelectorAll('.gold-item-row').length <= 1) {
-        alert(currentLang === 'ko' ? "최소 1개 이상의 금 정보가 입력되어야 합니다." : "ต้องระบุข้อมูลทองอย่างน้อย 1 รายการ");
+        showToast(currentLang === 'ko' ? "최소 1개 이상의 금 정보가 입력되어야 합니다." : "ต้องระบุข้อมูลทองอย่างน้อย 1 รายการ", 'error');
         return;
       }
       btn.closest('.gold-item-row').remove();
@@ -767,26 +911,78 @@
       return items;
     }
 
-    function getNextDueDate(loanDateStr) {
-      if (!loanDateStr) return new Date();
-      const loanDate = new Date(loanDateStr);
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
+    // =========================================================
+    // 중요: 관리자 실제 입금 확인 전까지 이월되지 않도록 하는 핵심 로직
+    // =========================================================
+    function addMonthsToDate(dateStrOrObj, monthsToAdd) {
+      const d = new Date(dateStrOrObj);
+      if (isNaN(d.getTime())) return new Date();
 
-      let nextDue = new Date(loanDate.getFullYear(), loanDate.getMonth() + 1, loanDate.getDate());
+      const year = d.getFullYear();
+      const month = d.getMonth();
+      const day = d.getDate();
 
-      while (nextDue <= today) {
-        nextDue.setMonth(nextDue.getMonth() + 1);
+      const targetDate = new Date(year, month + monthsToAdd, day);
+      if (targetDate.getDate() !== day) {
+        targetDate.setDate(0); 
+      }
+      return targetDate;
+    }
+
+    function getGoldItemNextDueDate(item, paymentLogs = []) {
+      if (!item) return new Date();
+
+      // 1. item 객체에 명시적인 next_due_date 속성이 있는 경우
+      if (item.next_due_date && !isNaN(new Date(item.next_due_date).getTime())) {
+        return new Date(item.next_due_date);
       }
 
-      return nextDue;
+      // 2. last_paid_date 속성이 지정된 경우 1개월 후
+      if (item.last_paid_date && !isNaN(new Date(item.last_paid_date).getTime())) {
+        return addMonthsToDate(item.last_paid_date, 1);
+      }
+
+      // 3. 결제 로그 및 paid_count 확인
+      const loanDateStr = item.loan_date || item.loanDate;
+      if (!loanDateStr) return new Date();
+
+      let paidCount = 0;
+
+      if (typeof item.paid_count === 'number') {
+        paidCount = item.paid_count;
+      } else if (Array.isArray(paymentLogs) && paymentLogs.length > 0) {
+        // 해당 아이템 ID가 결제 로그에 명시된 개수 계산
+        const itemLogs = paymentLogs.filter(log => {
+          if (log.item_id && log.item_id === item.id) return true;
+          if (log.note && item.id && log.note.includes(`[item:${item.id}]`)) return true;
+          return false;
+        });
+
+        if (itemLogs.length > 0) {
+          paidCount = itemLogs.length;
+        } else {
+          // 고객 전체 단위 결제 내역 개수로 폴백
+          const custLogs = paymentLogs.filter(log => log.customer_id === item.customer_id);
+          paidCount = custLogs.length;
+        }
+      }
+
+      // 관리자 승인이 없는 경우, 날짜가 아무리 지나도 초기 상환일(대출일 + 1달)에 고정
+      return addMonthsToDate(loanDateStr, paidCount + 1);
+    }
+
+    function getNextDueDate(loanDateStr) {
+      // 구 버전 하위 호환
+      if (!loanDateStr) return new Date();
+      return addMonthsToDate(loanDateStr, 1);
     }
 
     function formatDate(dateObj) {
       if (!dateObj || isNaN(new Date(dateObj))) return '-';
-      const yyyy = dateObj.getFullYear();
-      const mm = String(dateObj.getMonth() + 1).padStart(2, '0');
-      const dd = String(dateObj.getDate()).padStart(2, '0');
+      const d = new Date(dateObj);
+      const yyyy = d.getFullYear();
+      const mm = String(d.getMonth() + 1).padStart(2, '0');
+      const dd = String(d.getDate()).padStart(2, '0');
       return `${yyyy}-${mm}-${dd}`;
     }
 
@@ -814,17 +1010,26 @@
     }
 
     // ==========================================
-    // Supabase 연동 처리 함수
+    // Supabase 데이터 연동
     // ==========================================
 
     async function loadCustomersFromSupabase() {
       const { data, error } = await supabaseClient
         .from('customers')
-        .select('*, gold_items(*)');
+        .select('*, gold_items(*), payment_logs(*)');
 
       if (error) {
         console.error('Supabase fetch error:', error);
-        return [];
+        // 조인 쿼리 실패 시 폴백
+        const { data: fallbackData } = await supabaseClient.from('customers').select('*, gold_items(*)');
+        return (fallbackData || []).map(c => ({
+          id: c.id,
+          name: c.name,
+          phone: c.phone,
+          pw: c.pw,
+          items: c.gold_items || [],
+          payment_logs: []
+        }));
       }
 
       return data.map(c => ({
@@ -832,7 +1037,8 @@
         name: c.name,
         phone: c.phone,
         pw: c.pw,
-        items: c.gold_items || []
+        items: c.gold_items || [],
+        payment_logs: c.payment_logs || []
       }));
     }
 
@@ -843,13 +1049,13 @@
 
       const { data, error } = await supabaseClient
         .from('customers')
-        .select('*, gold_items(*)')
+        .select('*, gold_items(*), payment_logs(*)')
         .eq('phone', phone)
         .eq('pw', pw)
         .single();
 
       if (error || !data) {
-        alert(currentLang === 'ko' ? "일치하는 고객 정보가 없습니다." : "ไม่พบข้อมูลลูกค้าที่ตรงกัน");
+        showToast(currentLang === 'ko' ? "일치하는 고객 정보가 없습니다." : "ไม่พบข้อมูลลูกค้าที่ตรงกัน", 'error');
         return;
       }
 
@@ -858,10 +1064,12 @@
         name: data.name,
         phone: data.phone,
         pw: data.pw,
-        items: data.gold_items || []
+        items: data.gold_items || [],
+        payment_logs: data.payment_logs || []
       };
 
       await renderCustomerDashboard(currentUser);
+      showToast(currentLang === 'ko' ? `${data.name}님 환영합니다.` : `ยินดีต้อนรับ ${data.name}`, 'success');
     }
 
     function calculateTotalInterest(items) {
@@ -869,16 +1077,31 @@
     }
 
     async function renderCustomerDashboard(user) {
-      currentUser = user; // 현재 로그인된 사용자 유지
+      currentUser = user; 
+
+      // 최신 납부 이력 재조회
+      const { data: logs } = await supabaseClient
+        .from('payment_logs')
+        .select('*')
+        .eq('customer_id', user.id)
+        .order('payment_date', { ascending: false });
+
+      if (logs) {
+        user.payment_logs = logs;
+      }
+
       const totalPrincipal = user.items.reduce((sum, item) => sum + Number(item.amount), 0);
       const interestAmount = calculateTotalInterest(user.items);
       const t = i18n[currentLang];
 
-      let earliestNextDue = null;
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      let earliestNextDueObj = null;
       user.items.forEach(item => {
-        const itemDue = getNextDueDate(item.loan_date || item.loanDate);
-        if (!earliestNextDue || itemDue < earliestNextDue) {
-          earliestNextDue = itemDue;
+        const itemDue = getGoldItemNextDueDate(item, user.payment_logs);
+        if (!earliestNextDueObj || itemDue < earliestNextDueObj) {
+          earliestNextDueObj = itemDue;
         }
       });
 
@@ -899,11 +1122,12 @@
 
       const dueGroupsMap = {};
       user.items.forEach(item => {
-        const dueDate = formatDate(getNextDueDate(item.loan_date || item.loanDate));
+        const dueDateObj = getGoldItemNextDueDate(item, user.payment_logs);
+        const dueDate = formatDate(dueDateObj);
         if (!dueGroupsMap[dueDate]) {
-          dueGroupsMap[dueDate] = [];
+          dueGroupsMap[dueDate] = { dateObj: dueDateObj, items: [] };
         }
-        dueGroupsMap[dueDate].push(item);
+        dueGroupsMap[dueDate].items.push(item);
       });
 
       const goldList = document.getElementById('cust-gold-list');
@@ -911,8 +1135,14 @@
         goldList.innerHTML = `<p class="text-xs text-slate-500 text-center py-4">${currentLang === 'ko' ? '등록된 담보 물건이 없습니다 (거래 완료).' : 'ไม่มีหลักประกัน (เสร็จสิ้นการทำธุรกรรม)'}</p>`;
       } else {
         goldList.innerHTML = Object.keys(dueGroupsMap).sort().map(dueDate => {
-          const groupItems = dueGroupsMap[dueDate];
+          const group = dueGroupsMap[dueDate];
+          const groupItems = group.items;
           const groupTotalInterest = calculateTotalInterest(groupItems);
+          const isOverdue = group.dateObj < today;
+
+          const overdueBadge = isOverdue 
+            ? `<span class="px-2 py-0.5 rounded text-[10px] bg-rose-500/20 text-rose-400 border border-rose-500/30 font-bold ml-1">${t.lblOverdue}</span>`
+            : '';
 
           const itemsHtml = groupItems.map(item => {
             const itemLoanDate = item.loan_date || item.loanDate || '-';
@@ -934,7 +1164,9 @@
           return `
             <div class="bg-slate-950/40 p-3 rounded-lg border border-slate-800 mb-3">
               <div class="flex justify-between items-center border-b border-slate-800 pb-2 mb-2">
-                <span class="text-xs font-bold text-emerald-400"><i class="fa-regular fa-calendar-days mr-1"></i> ${t.lblDueDatePrefix}: ${dueDate}</span>
+                <span class="text-xs font-bold ${isOverdue ? 'text-rose-400' : 'text-emerald-400'}">
+                  <i class="fa-regular fa-calendar-days mr-1"></i> ${t.lblDueDatePrefix}: ${dueDate} ${overdueBadge}
+                </span>
                 <span class="text-xs font-bold text-amber-400">${t.lblGroupTotalInterest}: ${formatCurrency(groupTotalInterest)} 원</span>
               </div>
               <div class="space-y-1">
@@ -945,20 +1177,20 @@
         }).join('');
       }
 
-      document.getElementById('cust-next-due-date').innerText = user.items.length > 0 ? formatDate(earliestNextDue) : '-';
+      const nextDueContainer = document.getElementById('cust-next-due-date');
+      if (user.items.length > 0 && earliestNextDueObj) {
+        const isEarliestOverdue = earliestNextDueObj < today;
+        nextDueContainer.innerHTML = `
+          <span>${formatDate(earliestNextDueObj)}</span>
+          ${isEarliestOverdue ? `<span class="px-2 py-0.5 rounded text-xs bg-rose-500/30 text-rose-300 border border-rose-500/50 font-bold">${t.lblOverdue}</span>` : ''}
+        `;
+      } else {
+        nextDueContainer.innerText = '-';
+      }
 
       const historyContainer = document.getElementById('cust-payment-history-list');
 
-      const { data: logs, error } = await supabaseClient
-        .from('payment_logs')
-        .select('*')
-        .eq('customer_id', user.id)
-        .order('payment_date', { ascending: false });
-
-      if (error) {
-        console.error("Customer payment history fetch error:", error);
-        historyContainer.innerHTML = `<p class="text-xs text-rose-400 text-center py-2">내역 조회 실패</p>`;
-      } else if (!logs || logs.length === 0) {
+      if (!logs || logs.length === 0) {
         document.getElementById('cust-total-paid-interest').innerText = "0 원";
         historyContainer.innerHTML = `<p class="text-xs text-slate-500 text-center py-2">${t.lblNoPaymentHistory}</p>`;
       } else {
@@ -989,8 +1221,9 @@
 
       if (pw === "jimmy0309!") {
         renderAdminDashboard();
+        showToast(currentLang === 'ko' ? "관리자 모드로 접속했습니다." : "เข้าสู่ระบบผู้ดูแลเรียบร้อยแล้ว", 'success');
       } else {
-        alert(currentLang === 'ko' ? "비밀번호가 올바르지 않습니다." : "รหัสผ่านไม่ถูกต้อง");
+        showToast(currentLang === 'ko' ? "비밀번호가 올바르지 않습니다." : "รหัสผ่านไม่ถูกต้อง", 'error');
       }
     }
 
@@ -1007,17 +1240,19 @@
       tbody.innerHTML = "";
 
       const t = i18n[currentLang];
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
 
       const sortedCustomers = [...customers].sort((a, b) => {
         let earliestA = null;
         a.items.forEach(item => {
-          const due = getNextDueDate(item.loan_date || item.loanDate);
+          const due = getGoldItemNextDueDate(item, a.payment_logs);
           if (!earliestA || due < earliestA) earliestA = due;
         });
 
         let earliestB = null;
         b.items.forEach(item => {
-          const due = getNextDueDate(item.loan_date || item.loanDate);
+          const due = getGoldItemNextDueDate(item, b.payment_logs);
           if (!earliestB || due < earliestB) earliestB = due;
         });
 
@@ -1033,15 +1268,18 @@
 
         const dueGroupsMap = {};
         c.items.forEach(item => {
-          const dueDate = formatDate(getNextDueDate(item.loan_date || item.loanDate));
+          const dueDateObj = getGoldItemNextDueDate(item, c.payment_logs);
+          const dueDate = formatDate(dueDateObj);
           if (!dueGroupsMap[dueDate]) {
-            dueGroupsMap[dueDate] = [];
+            dueGroupsMap[dueDate] = { dateObj: dueDateObj, items: [] };
           }
-          dueGroupsMap[dueDate].push(item);
+          dueGroupsMap[dueDate].items.push(item);
         });
+
         const dueGroups = Object.keys(dueGroupsMap).map(dueDate => ({
           dueDate,
-          items: dueGroupsMap[dueDate]
+          dateObj: dueGroupsMap[dueDate].dateObj,
+          items: dueGroupsMap[dueDate].items
         }));
 
         const totalCustomerItems = c.items.length;
@@ -1088,6 +1326,12 @@
           let globalItemIdx = 0;
           dueGroups.forEach(group => {
             const groupItemCount = group.items.length;
+            const isOverdue = group.dateObj < today;
+
+            const overdueBadge = isOverdue
+              ? `<span class="px-1.5 py-0.5 rounded text-[10px] bg-rose-500/20 text-rose-400 border border-rose-500/30 font-bold ml-1">${t.lblOverdue}</span>`
+              : '';
+
             group.items.forEach((item, itemIdx) => {
               const itemLoanDate = item.loan_date || item.loanDate || '-';
               const itemNextDue = group.dueDate;
@@ -1111,7 +1355,9 @@
                 <td class="py-3 px-3 font-semibold text-slate-200 align-middle">${formatCurrency(item.amount)} 원 <span class="text-xs text-amber-400 font-normal">(${item.rate}%)</span></td>
                 <td class="py-3 px-3 font-semibold text-amber-400 align-middle">${formatCurrency(itemInterest)} 원</td>
                 <td class="py-3 px-3 text-slate-300 align-middle">${itemLoanDate}</td>
-                <td class="py-3 px-3 font-bold text-emerald-400 align-middle">${itemNextDue}</td>
+                <td class="py-3 px-3 font-bold ${isOverdue ? 'text-rose-400' : 'text-emerald-400'} align-middle">
+                  ${itemNextDue} ${overdueBadge}
+                </td>
               `;
 
               if (itemIdx === 0) {
@@ -1156,14 +1402,16 @@
       const customer = customers.find(c => c.id === custId);
       if (!customer) return;
 
-      const inputPw = prompt(currentLang === 'ko' 
-        ? `'${customer.name}' 고객의 최종 완납 처리를 위해 관리자 비밀번호를 입력해주세요:` 
-        : `กรุณากรอกรหัสผ่านผู้ดูแลระบบเพื่อยืนยันการชำระเสร็จสิ้นของ '${customer.name}':`);
+      const inputPw = await showPrompt(
+        currentLang === 'ko' 
+          ? `'${customer.name}' 고객의 최종 완납 처리를 위해 관리자 비밀번호를 입력해주세요:` 
+          : `กรุณากรอกรหัสผ่านผู้ดูแลระบบเพื่อยืนยันการชำระเสร็จสิ้นของ '${customer.name}':`
+      );
 
       if (inputPw === null) return;
 
       if (inputPw !== "jimmy0309!") {
-        alert(currentLang === 'ko' ? "관리자 비밀번호가 올바르지 않습니다." : "รหัสผ่านผู้ดูแลระบบไม่ถูกต้อง");
+        showToast(currentLang === 'ko' ? "관리자 비밀번호가 올바르지 않습니다." : "รหัสผ่านผู้ดูแลระบบไม่ถูกต้อง", 'error');
         return;
       }
 
@@ -1171,7 +1419,8 @@
         ? `'${customer.name}' 고객의 모든 담보 금 정보가 삭제되고 '거래완료' 상태로 전환됩니다. 계속하시겠습니까?`
         : `ข้อมูลทองคำประกันทั้งหมดของ '${customer.name}' จะถูกลบและเปลี่ยนเป็นสถานะเสร็จสิ้น คุณต้องการดำเนินการต่อหรือไม่?`;
 
-      if (!confirm(confirmMsg)) return;
+      const ok = await showConfirm(confirmMsg);
+      if (!ok) return;
 
       const { error } = await supabaseClient
         .from('gold_items')
@@ -1179,11 +1428,11 @@
         .eq('customer_id', custId);
 
       if (error) {
-        alert(currentLang === 'ko' ? "완납 처리 중 오류가 발생했습니다: " + error.message : "เกิดข้อผิดพลาดในการประมวลผล: " + error.message);
+        showToast(currentLang === 'ko' ? "완납 처리 중 오류가 발생했습니다: " + error.message : "เกิดข้อผิดพลาด: " + error.message, 'error');
         return;
       }
 
-      alert(currentLang === 'ko' ? "성공적으로 완납 처리되었습니다. (고객명 및 전화번호 유지, 담보 정보 삭제)" : "ดำเนินการชำระเสร็จสิ้นเรียบร้อยแล้ว");
+      showToast(currentLang === 'ko' ? "성공적으로 완납 처리되었습니다." : "ดำเนินการชำระเสร็จสิ้นเรียบร้อยแล้ว", 'success');
       renderAdminDashboard();
     }
 
@@ -1194,7 +1443,7 @@
       if (!customer) return;
 
       const groupItems = dueDate 
-        ? customer.items.filter(item => formatDate(getNextDueDate(item.loan_date || item.loanDate)) === dueDate)
+        ? customer.items.filter(item => formatDate(getGoldItemNextDueDate(item, customer.payment_logs)) === dueDate)
         : customer.items;
 
       const interestAmount = calculateTotalInterest(groupItems);
@@ -1257,8 +1506,18 @@
       e.preventDefault();
       if (!currentActiveCustId) return;
 
+      const customer = customers.find(c => c.id === currentActiveCustId);
+      if (!customer) return;
+
       const amount = Number(document.getElementById('pay-input-amount').value);
-      const note = document.getElementById('pay-input-note').value.trim();
+      let note = document.getElementById('pay-input-note').value.trim();
+
+      const groupItems = currentActiveDueDate
+        ? customer.items.filter(item => formatDate(getGoldItemNextDueDate(item, customer.payment_logs)) === currentActiveDueDate)
+        : customer.items;
+
+      const itemTags = groupItems.map(i => `[item:${i.id}]`).join(' ');
+      note = `${note} ${itemTags}`.trim();
 
       const { error: logError } = await supabaseClient
         .from('payment_logs')
@@ -1269,19 +1528,39 @@
         }]);
 
       if (logError) {
-        alert("입금 기록 저장 실패: " + logError.message);
+        showToast("입금 기록 저장 실패: " + logError.message, 'error');
         return;
       }
 
-      alert(currentLang === 'ko' ? "입금 내역이 성공적으로 저장되었습니다." : "บันทึกการชำระเงินเรียบร้อยแล้ว");
+      // DB 호환성을 위해 gold_items 컬럼 갱신 시도
+      for (const item of groupItems) {
+        const currentPaidCount = (item.paid_count || 0) + 1;
+        const nextDueDateStr = formatDate(addMonthsToDate(item.loan_date || item.loanDate, currentPaidCount + 1));
+        
+        try {
+          await supabaseClient
+            .from('gold_items')
+            .update({
+              last_paid_date: currentActiveDueDate || formatDate(new Date()),
+              next_due_date: nextDueDateStr,
+              paid_count: currentPaidCount
+            })
+            .eq('id', item.id);
+        } catch (err) {
+          console.log("Optional column update omitted:", err);
+        }
+      }
+
+      showToast(currentLang === 'ko' ? "입금 확인 및 납부 완료가 등록되었습니다." : "บันทึกการชำระเงินเรียบร้อยแล้ว", 'success');
       
       await loadPaymentHistory(currentActiveCustId);
-      renderAdminDashboard();
+      await renderAdminDashboard();
     }
 
     async function deletePaymentLog(logId) {
       const confirmMsg = currentLang === 'ko' ? "해당 납부 기록을 삭제하시겠습니까?" : "คุณต้องการลบรายการชำระเงินนี้ใช่หรือไม่?";
-      if (!confirm(confirmMsg)) return;
+      const ok = await showConfirm(confirmMsg);
+      if (!ok) return;
 
       const { error } = await supabaseClient
         .from('payment_logs')
@@ -1289,11 +1568,13 @@
         .eq('id', logId);
 
       if (error) {
-        alert("삭제 실패: " + error.message);
+        showToast("삭제 실패: " + error.message, 'error');
         return;
       }
 
+      showToast(currentLang === 'ko' ? "납부 내역이 삭제되었습니다." : "ลบรายการเรียบร้อยแล้ว", 'success');
       await loadPaymentHistory(currentActiveCustId);
+      await renderAdminDashboard();
     }
 
     async function handleAddCustomer(e) {
@@ -1304,7 +1585,7 @@
       const items = getGoldItemsData('add-gold-container');
 
       if (items.length === 0) {
-        alert(currentLang === 'ko' ? "최소 1개 이상의 금 정보를 올바르게 입력해주세요." : "กรุณากรอกข้อมูลทองคำอย่างน้อย 1 รายการ");
+        showToast(currentLang === 'ko' ? "최소 1개 이상의 금 정보를 올바르게 입력해주세요." : "กรุณากรอกข้อมูลทองคำอย่างน้อย 1 รายการ", 'error');
         return;
       }
 
@@ -1315,7 +1596,7 @@
         .maybeSingle();
 
       if (findError) {
-        alert("고객 조회 오류: " + findError.message);
+        showToast("고객 조회 오류: " + findError.message, 'error');
         return;
       }
 
@@ -1329,7 +1610,7 @@
           .eq('id', customerId);
 
         if (updateError) {
-          alert("고객 정보 갱신 실패: " + updateError.message);
+          showToast("고객 정보 갱신 실패: " + updateError.message, 'error');
           return;
         }
       } else {
@@ -1340,7 +1621,7 @@
           .single();
 
         if (custError) {
-          alert("고객 생성 실패: " + custError.message);
+          showToast("고객 생성 실패: " + custError.message, 'error');
           return;
         }
         customerId = custData.id;
@@ -1360,11 +1641,11 @@
         .insert(goldPayload);
 
       if (goldError) {
-        alert("담보 물품 등록 실패: " + goldError.message);
+        showToast("담보 물품 등록 실패: " + goldError.message, 'error');
         return;
       }
 
-      alert(currentLang === 'ko' ? "대출 건이 성공적으로 추가되었습니다." : "บันทึกข้อมูลเรียบร้อยแล้ว");
+      showToast(currentLang === 'ko' ? "신규 대출 건이 추가되었습니다." : "บันทึกข้อมูลเรียบร้อยแล้ว", 'success');
 
       e.target.reset();
       document.getElementById('add-gold-container').innerHTML = "";
@@ -1388,7 +1669,7 @@
       editContainer.innerHTML = "";
 
       const groupItems = dueDate
-        ? customer.items.filter(item => formatDate(getNextDueDate(item.loan_date || item.loanDate)) === dueDate)
+        ? customer.items.filter(item => formatDate(getGoldItemNextDueDate(item, customer.payment_logs)) === dueDate)
         : customer.items;
 
       groupItems.forEach(item => {
@@ -1419,7 +1700,7 @@
       const items = getGoldItemsData('edit-gold-container');
 
       if (items.length === 0) {
-        alert(currentLang === 'ko' ? "최소 1개 이상의 금 정보를 올바르게 입력해주세요." : "กรุณากรอกข้อมูลทองคำอย่างน้อย 1 รายการ");
+        showToast(currentLang === 'ko' ? "최소 1개 이상의 금 정보를 올바르게 입력해주세요." : "กรุณากรอกข้อมูลทองคำอย่างน้อย 1 รายการ", 'error');
         return;
       }
 
@@ -1433,13 +1714,13 @@
         .eq('id', id);
 
       if (custError) {
-        alert("고객 수정 오류: " + custError.message);
+        showToast("고객 수정 오류: " + custError.message, 'error');
         return;
       }
 
       const customer = customers.find(c => c.id === id);
       if (customer && currentEditDueDate) {
-        const targetItems = customer.items.filter(item => formatDate(getNextDueDate(item.loan_date || item.loanDate)) === currentEditDueDate);
+        const targetItems = customer.items.filter(item => formatDate(getGoldItemNextDueDate(item, customer.payment_logs)) === currentEditDueDate);
         const targetIds = targetItems.map(i => i.id).filter(Boolean);
         if (targetIds.length > 0) {
           await supabaseClient.from('gold_items').delete().in('id', targetIds);
@@ -1464,13 +1745,13 @@
         .insert(goldPayload);
 
       if (goldError) {
-        alert("담보 정보 수정 오류: " + goldError.message);
+        showToast("담보 정보 수정 오류: " + goldError.message, 'error');
         return;
       }
 
       closeEditModal();
       renderAdminDashboard();
-      alert(currentLang === 'ko' ? "정보가 수정되었습니다." : "แก้ไขข้อมูลเรียบร้อยแล้ว");
+      showToast(currentLang === 'ko' ? "정보가 성공적으로 수정되었습니다." : "แก้ไขข้อมูลเรียบร้อยแล้ว", 'success');
     }
 
     async function deleteCustomerDueDateGroup(custId, dueDate) {
@@ -1478,14 +1759,15 @@
       if (!customer) return;
 
       const groupItems = dueDate
-        ? customer.items.filter(item => formatDate(getNextDueDate(item.loan_date || item.loanDate)) === dueDate)
+        ? customer.items.filter(item => formatDate(getGoldItemNextDueDate(item, customer.payment_logs)) === dueDate)
         : customer.items;
 
       const confirmMsg = currentLang === 'ko' 
         ? `'${customer.name}' 고객의 납기일(${dueDate || '전체'})에 해당하는 담보 물건들을 정말 삭제하시겠습니까?`
         : `คุณต้องการลบข้อมูลหลักประกันของ '${customer.name}' (วันครบกำหนด: ${dueDate || 'ทั้งหมด'}) ใช่หรือไม่?`;
 
-      if (confirm(confirmMsg)) {
+      const ok = await showConfirm(confirmMsg);
+      if (ok) {
         const itemIds = groupItems.map(i => i.id).filter(Boolean);
         if (itemIds.length > 0) {
           await supabaseClient.from('gold_items').delete().in('id', itemIds);
@@ -1494,7 +1776,7 @@
         }
 
         renderAdminDashboard();
-        alert(currentLang === 'ko' ? "삭제되었습니다." : "ลบเรียบร้อยแล้ว");
+        showToast(currentLang === 'ko' ? "삭제되었습니다." : "ลบเรียบร้อยแล้ว", 'success');
       }
     }
 
@@ -1503,6 +1785,7 @@
       document.getElementById('section-customer-dashboard').classList.add('hidden');
       document.getElementById('section-admin-dashboard').classList.add('hidden');
       document.getElementById('section-login').classList.remove('hidden');
+      showToast(currentLang === 'ko' ? "로그아웃 되었습니다." : "ออกจากระบบเรียบร้อยแล้ว", 'info');
     }
   </script>
 </body>
