@@ -1451,7 +1451,9 @@
 
       document.getElementById('modal-payment-cust-name').innerText = `${customer.name} (${customer.phone})${dueDate ? ` - ${t.lblDueDateLabel}:${dueDate}` : ''}`;
       document.getElementById('pay-input-amount').value = interestAmount;
-      document.getElementById('pay-input-note').value = `${new Date().getMonth() + 1}${t.lblMonthlyDeposit}${dueDate ? ` (${t.lblDueDateLabel}:${dueDate})` : ''}`;
+      
+      // 비고/메모 default 값을 빈칸으로 변경
+      document.getElementById('pay-input-note').value = '';
 
       document.getElementById('modal-payment').classList.remove('hidden');
 
@@ -1510,7 +1512,11 @@
       if (!customer) return;
 
       const amount = Number(document.getElementById('pay-input-amount').value);
-      let note = document.getElementById('pay-input-note').value.trim();
+      const t = i18n[currentLang];
+      const defaultNote = `${new Date().getMonth() + 1}${t.lblMonthlyDeposit}${currentActiveDueDate ? ` (${t.lblDueDateLabel}:${currentActiveDueDate})` : ''}`;
+      
+      let userNote = document.getElementById('pay-input-note').value.trim();
+      let note = userNote || defaultNote;
 
       const groupItems = currentActiveDueDate
         ? customer.items.filter(item => formatDate(getGoldItemNextDueDate(item, customer.payment_logs)) === currentActiveDueDate)
@@ -1524,7 +1530,7 @@
         .insert([{
           customer_id: currentActiveCustId,
           amount: amount,
-          note: note || '이자 입금'
+          note: note
         }]);
 
       if (logError) {
