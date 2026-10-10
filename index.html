@@ -783,6 +783,11 @@
       const row = document.createElement('div');
       row.className = "gold-item-row grid grid-cols-12 gap-2 items-center";
 
+      // 기존 대출 항목의 고유 ID가 존재하는 경우 dataset에 저장하여 덮어쓰기 방지
+      if (data.id) {
+        row.dataset.itemId = data.id;
+      }
+
       const t = i18n[currentLang];
       const todayStr = new Date().toISOString().split('T')[0];
       const initialDate = data.loan_date || data.loanDate || todayStr;
@@ -828,6 +833,7 @@
       const items = [];
 
       rows.forEach(row => {
+        const itemId = row.dataset.itemId ? Number(row.dataset.itemId) : null;
         const item_type = row.querySelector('.gold-type').value.trim();
         const weight = row.querySelector('.gold-weight').value.trim();
         const amount = parseFloat(row.querySelector('.gold-amount').value) || 0;
@@ -835,7 +841,9 @@
         const loan_date = row.querySelector('.gold-date').value;
 
         if (item_type && weight && amount && rate && loan_date) {
-          items.push({ item_type, weight, amount, rate, loan_date });
+          const item = { item_type, weight, amount, rate, loan_date };
+          if (itemId) item.id = itemId;
+          items.push(item);
         }
       });
 
@@ -1590,6 +1598,7 @@
         return;
       }
 
+      // 1. 고객 이름/전화번호/비밀번호 수정
       const { error: custError } = await supabaseClient
         .from('customers')
         .update({
@@ -1604,28 +1613,49 @@
         return;
       }
 
-      await supabaseClient.from('gold_items').delete().eq('customer_id', id);
+      // 2. 대출 항목 스마트 업데이트 (기존 ID 유지하여 이자 내역 유실 방지)
+      const customer = customers.find(c => c.id === id);
+      const existingDbItemIds = (customer && customer.items) ? customer.items.map(i => i.id) : [];
 
-      const goldPayload = items.map(item => ({
-        customer_id: id,
-        item_type: item.item_type || item.type,
-        weight: item.weight,
-        amount: item.amount,
-        rate: item.rate,
-        loan_date: item.loan_date || item.loanDate
-      }));
+      const currentFormItemIds = items.filter(i => i.id).map(i => i.id);
 
-      const { error: goldError } = await supabaseClient
-        .from('gold_items')
-        .insert(goldPayload);
+      // 사용자가 모달 창에서 제거한 대출건만 선별 삭제
+      const toDeleteIds = existingDbItemIds.filter(itemId => !currentFormItemIds.includes(itemId));
+      if (toDeleteIds.length > 0) {
+        await supabaseClient.from('gold_items').delete().in('id', toDeleteIds);
+      }
 
-      if (goldError) {
-        showToast("담보 정보 수정 오류: " + goldError.message, 'error');
-        return;
+      // 기존 대출건은 UPDATE, 새 대출건은 INSERT
+      for (const item of items) {
+        if (item.id) {
+          // 기존 대출건 갱신 (ID가 유지되므로 payment_logs와 연결이 지속됨)
+          await supabaseClient
+            .from('gold_items')
+            .update({
+              item_type: item.item_type || item.type,
+              weight: item.weight,
+              amount: item.amount,
+              rate: item.rate,
+              loan_date: item.loan_date || item.loanDate
+            })
+            .eq('id', item.id);
+        } else {
+          // 신규 추가된 대출건만 추가 생성
+          await supabaseClient
+            .from('gold_items')
+            .insert([{
+              customer_id: id,
+              item_type: item.item_type || item.type,
+              weight: item.weight,
+              amount: item.amount,
+              rate: item.rate,
+              loan_date: item.loan_date || item.loanDate
+            }]);
+        }
       }
 
       closeEditModal();
-      renderAdminDashboard();
+      await renderAdminDashboard();
       showToast(currentLang === 'ko' ? "정보가 성공적으로 수정되었습니다." : "แก้ไขข้อมูลเรียบร้อยแล้ว", 'success');
     }
 
