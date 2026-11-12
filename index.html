@@ -144,6 +144,39 @@
               <li id="lbl-notice-1-item3">금 몰수: 무연락 5일 이상 연체 시, 포기로 간주하여 사전 통보 없이 즉시 몰수</li>
             </ul>
           </div>
+
+          <div>
+            <div class="flex items-center space-x-2 text-amber-400 font-bold text-sm mb-1">
+              <i class="fa-solid fa-money-bill-transfer"></i>
+              <span id="lbl-notice-2-title">[원금 상환 안내]</span>
+            </div>
+            <ul class="list-disc list-inside space-y-1 text-slate-400 pl-1">
+              <li id="lbl-notice-2-item1">현금 또는 계좌이체만 가능</li>
+              <li id="lbl-notice-2-item2">계좌이체 시, 원금에 부가가치세 10%를 추가 부담</li>
+              <li id="lbl-notice-2-item3">계좌이체는 본인 명의 계좌만 가능 (타인 명의 송금 절대 불가)</li>
+            </ul>
+          </div>
+
+          <div>
+            <div class="flex items-center space-x-2 text-amber-400 font-bold text-sm mb-1">
+              <i class="fa-solid fa-percent"></i>
+              <span id="lbl-notice-3-title">[원금 감액 및 이자]</span>
+            </div>
+            <ul class="list-disc list-inside space-y-1 text-slate-400 pl-1">
+              <li id="lbl-notice-3-item1">원금 일부 상환 시 이자 감면 (단, 첫 달은 감면 없이 전액 부과)</li>
+              <li id="lbl-notice-3-item2">이자율은 기준에 따라 변동될 수 있음</li>
+            </ul>
+          </div>
+
+          <div>
+            <div class="flex items-center space-x-2 text-amber-400 font-bold text-sm mb-1">
+              <i class="fa-solid fa-truck-fast"></i>
+              <span id="lbl-notice-4-title">[택배 배송]</span>
+            </div>
+            <ul class="list-disc list-inside space-y-1 text-slate-400 pl-1">
+              <li id="lbl-notice-4-item1">매장 방문이 어려울 경우 택배 배송 가능 (배송비 8,000원)</li>
+            </ul>
+          </div>
         </div>
 
       </div>
@@ -544,6 +577,18 @@
         notice1Item2: "연체료: 3일 초과 시 하루 8,000원",
         notice1Item3: "금 몰수: 무연락 10일 이상 연체 시, 포기로 간주하여 사전 통보 없이 즉시 몰수",
 
+        notice2Title: "[원금 상환 안내]",
+        notice2Item1: "현금 또는 계좌이체만 가능",
+        notice2Item2: "계좌이체 시, 원금에 부가가치세 10%를 추가 부담",
+        notice2Item3: "계좌이체는 본인 명의 계좌만 가능 (타인 명의 송금 절대 불가)",
+
+        notice3Title: "[원금 감액 및 이자]",
+        notice3Item1: "원금 일부 상환 시 이자 감면 (단, 첫 달은 감면 없이 전액 부과)",
+        notice3Item2: "이자율은 기준에 따라 변동될 수 있음",
+
+        notice4Title: "[택배 배송]",
+        notice4Item1: "매장 방문이 어려울 경우 택배 배송 가능 (배송비 8,000원)",
+
         adminTitle: "관리자 대시보드",
         lblTotalCust: "총 대출 고객 수",
         lblTotalPrincipal: "총 빌려준 금액 (원금)",
@@ -638,6 +683,18 @@
         notice1Item2: "ค่าปรับค้างชำระ: 8,000 วอน/วัน หากเกิน 3 วัน",
         notice1Item3: "การยึดทอง: หากค้างชำระเกิน 5 วันโดยไม่ติดต่อ ถือว่าสละสิทธิ์และยึดทันทีโดยไม่แจ้งให้ทราบล่วงหน้า",
 
+        notice2Title: "[ข้อมูลการชำระคืนเงินต้น]",
+        notice2Item1: "รับชำระด้วยเงินสดหรือโอนเงินผ่านบัญชีธนาคารเท่านั้น",
+        notice2Item2: "กรณีโอนเงินผ่านบัญชี ต้องชำระภาษีมูลค่าเพิ่ม 10% ของเงินต้นเพิ่มเติม",
+        notice2Item3: "การโอนเงินต้องใช้บัญชีชื่อของผู้กู้เท่านั้น (ห้ามโอนจากบัญชีบุคคลอื่นโดยเด็ดขาด)",
+
+        notice3Title: "[การลดเงินต้นและดอกเบี้ย]",
+        notice3Item1: "ลดหย่อนดอกเบี้ยเมื่อชำระคืนเงินต้นบางส่วน (ยกเว้นเดือนแรก คิดเต็มจำนวนโดยไม่มีส่วนลด)",
+        notice3Item2: "อัตราดอกเบี้ยอาจมีการเปลี่ยนแปลงตามเกณฑ์ที่กำหนด",
+
+        notice4Title: "[บริการจัดส่งพัสดุ]",
+        notice4Item1: "หากไม่สะดวกเดินทางมาที่ร้าน สามารถจัดส่งทางพัสดุได้ (ค่าจัดส่ง 8,000 วอน)",
+
         adminTitle: "แผงควบคุมผู้ดูแลระบบ",
         lblTotalCust: "จำนวนลูกค้าทั้งหมด",
         lblTotalPrincipal: "ยอดเงินต้นรวมทั้งหมด",
@@ -723,6 +780,18 @@
       document.getElementById('lbl-notice-1-item1').innerText = t.notice1Item1;
       document.getElementById('lbl-notice-1-item2').innerText = t.notice1Item2;
       document.getElementById('lbl-notice-1-item3').innerText = t.notice1Item3;
+
+      document.getElementById('lbl-notice-2-title').innerText = t.notice2Title;
+      document.getElementById('lbl-notice-2-item1').innerText = t.notice2Item1;
+      document.getElementById('lbl-notice-2-item2').innerText = t.notice2Item2;
+      document.getElementById('lbl-notice-2-item3').innerText = t.notice2Item3;
+
+      document.getElementById('lbl-notice-3-title').innerText = t.notice3Title;
+      document.getElementById('lbl-notice-3-item1').innerText = t.notice3Item1;
+      document.getElementById('lbl-notice-3-item2').innerText = t.notice3Item2;
+
+      document.getElementById('lbl-notice-4-title').innerText = t.notice4Title;
+      document.getElementById('lbl-notice-4-item1').innerText = t.notice4Item1;
 
       document.getElementById('admin-title').innerText = t.adminTitle;
       document.getElementById('btn-admin-logout').innerText = t.btnLogout;
